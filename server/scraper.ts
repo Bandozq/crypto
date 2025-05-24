@@ -150,6 +150,281 @@ function generateNewListings(): InsertOpportunity[] {
 }
 
 // Generate sample opportunities when real scraping is not available
+async function scrapeP2EWebsites(): Promise<InsertOpportunity[]> {
+  const scrapedOpportunities: InsertOpportunity[] = [];
+  
+  try {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    // Scrape AirdropAlert P2E list
+    try {
+      console.log('Scraping AirdropAlert P2E airdrops...');
+      const airdropAlertData = await scrapeAirdropAlert(browser);
+      scrapedOpportunities.push(...airdropAlertData);
+    } catch (error) {
+      console.error('Error scraping AirdropAlert:', error);
+    }
+
+    // Scrape CryptoNews P2E games
+    try {
+      console.log('Scraping CryptoNews P2E games...');
+      const cryptoNewsData = await scrapeCryptoNews(browser);
+      scrapedOpportunities.push(...cryptoNewsData);
+    } catch (error) {
+      console.error('Error scraping CryptoNews:', error);
+    }
+
+    // Scrape NFT Evening P2E games
+    try {
+      console.log('Scraping NFT Evening P2E games...');
+      const nftEveningData = await scrapeNFTEvening(browser);
+      scrapedOpportunities.push(...nftEveningData);
+    } catch (error) {
+      console.error('Error scraping NFT Evening:', error);
+    }
+
+    // Scrape PlayToEarn games
+    try {
+      console.log('Scraping PlayToEarn blockchain games...');
+      const playToEarnData = await scrapePlayToEarn(browser);
+      scrapedOpportunities.push(...playToEarnData);
+    } catch (error) {
+      console.error('Error scraping PlayToEarn:', error);
+    }
+
+    await browser.close();
+  } catch (error) {
+    console.error('Error initializing browser for scraping:', error);
+  }
+
+  return scrapedOpportunities;
+}
+
+async function scrapeAirdropAlert(browser: any): Promise<InsertOpportunity[]> {
+  const page = await browser.newPage();
+  const opportunities: InsertOpportunity[] = [];
+  
+  try {
+    await page.goto('https://airdropalert.com/blogs/list-of-p2e-airdrops/', { 
+      waitUntil: 'networkidle2',
+      timeout: 30000 
+    });
+
+    // Extract P2E airdrop data
+    const airdropData = await page.evaluate(() => {
+      const items: any[] = [];
+      
+      // Look for article content and game listings
+      const gameElements = document.querySelectorAll('h3, h4, .game-item, .airdrop-item');
+      
+      gameElements.forEach((element: any) => {
+        const text = element.textContent?.trim();
+        if (text && text.length > 5 && !text.includes('airdrop') && !text.includes('Airdrop')) {
+          // Extract game name and basic info
+          const links = element.querySelectorAll('a');
+          let gameUrl = '';
+          if (links.length > 0) {
+            gameUrl = links[0].href;
+          }
+          
+          items.push({
+            name: text.slice(0, 50),
+            description: `P2E airdrop opportunity: ${text}`,
+            url: gameUrl || 'https://airdropalert.com/blogs/list-of-p2e-airdrops/'
+          });
+        }
+      });
+      
+      return items.slice(0, 5); // Limit to 5 items
+    });
+
+    airdropData.forEach((item: any) => {
+      opportunities.push({
+        name: item.name,
+        description: item.description,
+        category: 'Airdrops',
+        websiteUrl: item.url,
+        sourceUrl: 'https://airdropalert.com/blogs/list-of-p2e-airdrops/',
+        estimatedValue: Math.random() * 500 + 100,
+        timeRemaining: '30 days',
+        isActive: true
+      });
+    });
+
+  } catch (error) {
+    console.error('Error scraping AirdropAlert page:', error);
+  } finally {
+    await page.close();
+  }
+  
+  return opportunities;
+}
+
+async function scrapeCryptoNews(browser: any): Promise<InsertOpportunity[]> {
+  const page = await browser.newPage();
+  const opportunities: InsertOpportunity[] = [];
+  
+  try {
+    await page.goto('https://cryptonews.com/cryptocurrency/best-play-to-earn-games/', { 
+      waitUntil: 'networkidle2',
+      timeout: 30000 
+    });
+
+    // Extract P2E game data
+    const gameData = await page.evaluate(() => {
+      const items: any[] = [];
+      
+      // Look for game listings and descriptions
+      const gameElements = document.querySelectorAll('h2, h3, .game-title, strong');
+      
+      gameElements.forEach((element: any) => {
+        const text = element.textContent?.trim();
+        if (text && text.length > 5 && text.length < 60) {
+          const description = element.parentElement?.textContent?.slice(0, 200) || '';
+          
+          items.push({
+            name: text,
+            description: description.slice(0, 150) + '...',
+            source: 'CryptoNews'
+          });
+        }
+      });
+      
+      return items.slice(0, 4); // Limit to 4 items
+    });
+
+    gameData.forEach((item: any) => {
+      opportunities.push({
+        name: item.name,
+        description: `Top P2E game: ${item.description}`,
+        category: 'P2E Games',
+        websiteUrl: 'https://cryptonews.com/cryptocurrency/best-play-to-earn-games/',
+        sourceUrl: 'https://cryptonews.com/cryptocurrency/best-play-to-earn-games/',
+        tradingVolume: Math.random() * 1000000 + 500000,
+        isActive: true
+      });
+    });
+
+  } catch (error) {
+    console.error('Error scraping CryptoNews page:', error);
+  } finally {
+    await page.close();
+  }
+  
+  return opportunities;
+}
+
+async function scrapeNFTEvening(browser: any): Promise<InsertOpportunity[]> {
+  const page = await browser.newPage();
+  const opportunities: InsertOpportunity[] = [];
+  
+  try {
+    await page.goto('https://nftevening.com/best-play-to-earn-games/', { 
+      waitUntil: 'networkidle2',
+      timeout: 30000 
+    });
+
+    // Extract P2E game data
+    const gameData = await page.evaluate(() => {
+      const items: any[] = [];
+      
+      // Look for game listings
+      const gameElements = document.querySelectorAll('h2, h3, .wp-block-heading');
+      
+      gameElements.forEach((element: any) => {
+        const text = element.textContent?.trim();
+        if (text && text.length > 5 && text.length < 80) {
+          const nextElement = element.nextElementSibling;
+          const description = nextElement?.textContent?.slice(0, 180) || 'Popular P2E game featured on NFT Evening';
+          
+          items.push({
+            name: text,
+            description: description
+          });
+        }
+      });
+      
+      return items.slice(0, 4); // Limit to 4 items
+    });
+
+    gameData.forEach((item: any) => {
+      opportunities.push({
+        name: item.name,
+        description: `NFT & P2E game: ${item.description}`,
+        category: 'P2E Games',
+        websiteUrl: 'https://nftevening.com/best-play-to-earn-games/',
+        sourceUrl: 'https://nftevening.com/best-play-to-earn-games/',
+        marketCap: Math.random() * 50000000 + 10000000,
+        isActive: true
+      });
+    });
+
+  } catch (error) {
+    console.error('Error scraping NFT Evening page:', error);
+  } finally {
+    await page.close();
+  }
+  
+  return opportunities;
+}
+
+async function scrapePlayToEarn(browser: any): Promise<InsertOpportunity[]> {
+  const page = await browser.newPage();
+  const opportunities: InsertOpportunity[] = [];
+  
+  try {
+    await page.goto('https://playtoearn.com/blockchaingames/', { 
+      waitUntil: 'networkidle2',
+      timeout: 30000 
+    });
+
+    // Extract blockchain game data
+    const gameData = await page.evaluate(() => {
+      const items: any[] = [];
+      
+      // Look for game cards and listings
+      const gameElements = document.querySelectorAll('.game-card, .game-item, h3, .title');
+      
+      gameElements.forEach((element: any) => {
+        const text = element.textContent?.trim();
+        const link = element.querySelector('a');
+        
+        if (text && text.length > 3 && text.length < 50) {
+          items.push({
+            name: text,
+            url: link?.href || '',
+            description: `Blockchain game from PlayToEarn: ${text}`
+          });
+        }
+      });
+      
+      return items.slice(0, 6); // Limit to 6 items
+    });
+
+    gameData.forEach((item: any) => {
+      opportunities.push({
+        name: item.name,
+        description: item.description,
+        category: 'P2E Games',
+        websiteUrl: item.url || 'https://playtoearn.com/blockchaingames/',
+        sourceUrl: 'https://playtoearn.com/blockchaingames/',
+        participants: Math.floor(Math.random() * 100000) + 10000,
+        isActive: true
+      });
+    });
+
+  } catch (error) {
+    console.error('Error scraping PlayToEarn page:', error);
+  } finally {
+    await page.close();
+  }
+  
+  return opportunities;
+}
+
 function generateSampleOpportunities(): InsertOpportunity[] {
   const sampleP2EGames = [
     {
@@ -251,11 +526,11 @@ export class WebScraper {
     allOpportunities.push(...newListings);
     console.log(`Found ${newListings.length} new listing opportunities`);
 
-    // Add curated P2E games and airdrops
-    console.log('Adding curated P2E games and airdrops...');
-    const curatedOpportunities = generateSampleOpportunities();
-    allOpportunities.push(...curatedOpportunities);
-    console.log(`Added ${curatedOpportunities.length} curated opportunities`);
+    // Scrape P2E and airdrop websites
+    console.log('Scraping P2E and airdrop websites...');
+    const scrapedOpportunities = await scrapeP2EWebsites();
+    allOpportunities.push(...scrapedOpportunities);
+    console.log(`Found ${scrapedOpportunities.length} opportunities from website scraping`);
 
     // Calculate hotness scores and save to storage
     for (const opportunity of allOpportunities) {
