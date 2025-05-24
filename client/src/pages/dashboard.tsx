@@ -56,6 +56,18 @@ export default function Dashboard() {
     
     let filtered = [...allOpportunities];
 
+    // Filter out Ethereum and Bitcoin
+    filtered = filtered.filter((opp: any) => {
+      const name = opp.name?.toLowerCase() || '';
+      const description = opp.description?.toLowerCase() || '';
+      return !name.includes('ethereum') && 
+             !name.includes('bitcoin') && 
+             !name.includes('btc') && 
+             !name.includes('eth') &&
+             !description.includes('ethereum') &&
+             !description.includes('bitcoin');
+    });
+
     // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter((opp: any) => 
