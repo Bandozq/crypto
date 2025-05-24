@@ -18,7 +18,7 @@ class WebSocketClient {
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('WebSocket connected successfully');
         this.reconnectAttempts = 0;
       };
 
@@ -31,13 +31,18 @@ class WebSocketClient {
         }
       };
 
-      this.ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        this.reconnect();
+      this.ws.onclose = (event) => {
+        console.log('WebSocket disconnected', event.code, event.reason);
+        if (event.code !== 1000) { // Not a normal closure
+          this.reconnect();
+        }
       };
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
+        if (this.ws) {
+          this.ws.close();
+        }
       };
     } catch (error) {
       console.error('Failed to connect WebSocket:', error);

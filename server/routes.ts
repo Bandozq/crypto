@@ -98,21 +98,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
   // Setup WebSocket for real-time updates
-  const wss = new WebSocketServer({ server: httpServer });
+  const wss = new WebSocketServer({ 
+    server: httpServer,
+    perMessageDeflate: false
+  });
 
   wss.on('connection', (ws) => {
     console.log('Client connected to WebSocket');
+    
+    ws.on('error', (error) => {
+      console.log('WebSocket error:', error);
+    });
     
     ws.on('close', () => {
       console.log('Client disconnected from WebSocket');
     });
 
-    // Send initial data
+    // Send initial data safely
     storage.getAllOpportunities().then(opportunities => {
-      ws.send(JSON.stringify({
-        type: 'opportunities_update',
-        data: opportunities
-      }));
+      if (ws.readyState === 1) { // WebSocket.OPEN
+        try {
+          ws.send(JSON.stringify({
+            type: 'opportunities_update',
+            data: opportunities
+          }));
+        } catch (error) {
+          console.error('Error sending initial data:', error);
+        }
+      }
+    }).catch(error => {
+      console.error('Error fetching initial opportunities:', error);
     });
   });
 
@@ -134,7 +149,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         wss.clients.forEach(client => {
           if (client.readyState === 1) { // WebSocket.OPEN
-            client.send(message);
+            try {
+              client.send(message);
+            } catch (error) {
+              console.error('Error sending to client:', error);
+            }
           }
         });
       } catch (error) {
