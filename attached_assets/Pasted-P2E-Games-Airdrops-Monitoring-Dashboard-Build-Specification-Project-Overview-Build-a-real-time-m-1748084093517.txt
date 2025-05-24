@@ -1,0 +1,172 @@
+P2E Games & Airdrops Monitoring Dashboard - Build Specification
+Project Overview
+Build a real-time monitoring dashboard that tracks Play-to-Earn (P2E) games, airdrops, and new cryptocurrency listings to identify the hottest opportunities as they become available.
+Core Requirements
+1. Web Scraping Engine
+
+Multi-source scraper for the following websites:
+
+https://airdropalert.com/blogs/list-of-p2e-airdrops/
+https://cryptonews.com/cryptocurrency/best-play-to-earn-games/
+https://nftevening.com/best-play-to-earn-games/
+https://playtoearn.com/blockchaingames/
+https://coinmarketcap.com/currencies/shitcoin/ (new listings monitoring)
+
+
+Scraping frequency: Every 5-15 minutes for hot opportunities, hourly for general updates
+Anti-detection measures: Rotating user agents, proxy support, request throttling
+Error handling: Retry logic, fallback mechanisms, logging system
+
+2. Data Processing & Intelligence
+
+Content parsing to extract:
+
+Game/project names and descriptions
+Airdrop requirements and deadlines
+Token launch dates and details
+Social media metrics (followers, engagement)
+Market cap and trading volume data
+Website links and social handles
+
+
+Hotness scoring algorithm based on:
+
+Recency of announcement (newest = highest score)
+Social media engagement rates
+Trading volume and market activity
+Community growth metrics
+Airdrop value estimates
+
+
+
+3. Real-time Dashboard Interface
+
+Live feed section: Real-time updates of new opportunities
+Hotness ranking: Top 20 hottest opportunities with scores
+Category filters: P2E Games, Airdrops, New Listings, DeFi, NFTs
+Time filters: Last hour, 6 hours, 24 hours, week
+Search functionality: By project name, blockchain, category
+Detailed cards showing:
+
+Project thumbnail/logo
+Key metrics and requirements
+Time remaining for airdrops
+Quick action buttons (visit site, join discord, follow Twitter)
+
+
+
+4. Alert System
+
+Push notifications for opportunities scoring above threshold
+Email alerts with customizable frequency
+Discord/Telegram bot integration for instant notifications
+Custom alert rules: Based on keywords, market cap ranges, specific blockchains
+FOMO indicators: Urgency badges for time-sensitive opportunities
+
+5. Technical Architecture
+Backend Stack
+
+Language: Python with FastAPI or Node.js with Express
+Web scraping: Scrapy/BeautifulSoup (Python) or Puppeteer/Playwright (Node.js)
+Database: PostgreSQL for structured data, Redis for caching
+Task queue: Celery (Python) or Bull (Node.js) for scheduled scraping
+API: RESTful endpoints with real-time WebSocket connections
+
+Frontend Stack
+
+Framework: React with Next.js or Vue.js with Nuxt
+Real-time updates: WebSocket or Server-Sent Events
+UI Components: Responsive design with dark mode support
+Charts: Chart.js or D3.js for data visualization
+State management: Redux/Zustand or Vuex/Pinia
+
+Infrastructure
+
+Deployment: Docker containers on AWS/GCP/DigitalOcean
+Monitoring: Application performance monitoring and error tracking
+Caching: Redis for frequently accessed data
+Rate limiting: To prevent API abuse
+Backup: Automated database backups
+
+6. Key Features Implementation
+Hot Opportunity Detection
+pythondef calculate_hotness_score(opportunity):
+    score = 0
+    # Recency boost (newer = hotter)
+    hours_old = (now - opportunity.created_at).hours
+    score += max(100 - hours_old * 2, 0)
+    
+    # Social engagement
+    score += min(opportunity.twitter_followers / 1000, 50)
+    score += min(opportunity.discord_members / 500, 30)
+    
+    # Market activity
+    if opportunity.trading_volume > 100000:
+        score += 40
+    
+    # Airdrop value estimate
+    if opportunity.estimated_value > 500:
+        score += 30
+    
+    return min(score, 300)  # Cap at 300
+Real-time Data Flow
+
+Scrapers collect data every few minutes
+Processing engine analyzes and scores opportunities
+WebSocket server pushes updates to connected clients
+Dashboard displays real-time feed with smooth animations
+Alert system triggers notifications for high-scoring items
+
+7. Dashboard Sections
+Main Feed
+
+Live ticker of newest opportunities
+Hot list with top 20 scored items
+Quick stats: Total opportunities today, average airdrop value
+Trending tags: Most common project types/blockchains
+
+Detailed Views
+
+Project deep-dive pages with full analysis
+Historical tracking of opportunity performance
+Portfolio tracker for participated airdrops
+Analytics dashboard with trends and insights
+
+User Features
+
+Watchlists for favorite projects/categories
+Custom alert profiles with personal criteria
+Participation tracking with deadline reminders
+Success metrics showing completed airdrops value
+
+8. Data Sources & APIs
+
+Primary scraping targets (listed above)
+Social media APIs: Twitter, Discord (where available)
+Blockchain APIs: Etherscan, BSCScan, etc.
+Price APIs: CoinGecko, CoinMarketCap
+News aggregators: RSS feeds from crypto news sites
+
+9. Compliance & Ethics
+
+Respectful scraping: Follow robots.txt, implement delays
+Terms of service compliance: Ensure scraping is within legal bounds
+Data privacy: Handle user data responsibly
+Disclaimer: Clear warnings about investment risks
+
+10. Success Metrics
+
+Speed: New opportunities detected within 5 minutes of publication
+Accuracy: 95%+ correct parsing of opportunity details
+Uptime: 99.5% dashboard availability
+User engagement: Average session time >10 minutes
+Alert effectiveness: 80%+ user satisfaction with notification relevance
+
+Implementation Priority
+
+Phase 1: Basic scraping engine + simple dashboard
+Phase 2: Hotness scoring + real-time updates
+Phase 3: Advanced filtering + alert system
+Phase 4: Mobile app + advanced analytics
+Phase 5: Community features + portfolio tracking
+
