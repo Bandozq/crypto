@@ -135,27 +135,33 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
       </div>
 
       {isOpen && (
-        <Card className="absolute right-0 top-full mt-2 w-[800px] bg-crypto-card border-gray-600 text-white z-50 shadow-xl">
-          <CardHeader className="border-b border-gray-600">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-crypto-blue" />
-                Analytics Dashboard
-              </CardTitle>
-              <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger className="w-32 bg-crypto-dark border-gray-600 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-crypto-dark border-gray-600">
-                  <SelectItem value="7d" className="text-white">7 Days</SelectItem>
-                  <SelectItem value="30d" className="text-white">30 Days</SelectItem>
-                  <SelectItem value="90d" className="text-white">90 Days</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="p-4 space-y-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-6xl max-h-[90vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
+            <CardHeader className="border-b border-gray-600">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-crypto-blue" />
+                  Analytics Dashboard
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Select value={timeRange} onValueChange={setTimeRange}>
+                    <SelectTrigger className="w-32 bg-crypto-dark border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-crypto-dark border-gray-600">
+                      <SelectItem value="7d" className="text-white">7 Days</SelectItem>
+                      <SelectItem value="30d" className="text-white">30 Days</SelectItem>
+                      <SelectItem value="90d" className="text-white">90 Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white" onClick={() => setIsOpen(false)}>
+                    ✕
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="p-4 space-y-6 overflow-y-auto max-h-[calc(90vh-100px)]">
             {/* Key Metrics */}
             <div className="grid grid-cols-4 gap-4">
               <div className="text-center p-3 bg-crypto-dark rounded-lg">
@@ -311,14 +317,7 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Click outside to close */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
-        />
+        </div>
       )}
     </div>
   );
