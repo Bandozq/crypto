@@ -17,7 +17,7 @@ export default function Dashboard() {
   // Fetch hot opportunities
   const { data: hotOpportunities, isLoading: hotLoading } = useQuery({
     queryKey: ["/api/opportunities/hot", { limit: 4 }],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 60000, // Refresh every 60 seconds
   });
 
   // Fetch all opportunities with filters
@@ -30,13 +30,13 @@ export default function Dashboard() {
         search: searchQuery || undefined,
       }
     ],
-    refetchInterval: 30000,
+    refetchInterval: 60000,
   });
 
   // Fetch dashboard stats
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
-    refetchInterval: 30000,
+    refetchInterval: 60000,
   });
 
   const displayedOpportunities = allOpportunities?.slice(0, displayLimit) || [];

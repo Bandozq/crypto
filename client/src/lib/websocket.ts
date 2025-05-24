@@ -95,7 +95,9 @@ class WebSocketClient {
 
 export const websocketClient = new WebSocketClient();
 
-// Auto-connect when module loads
+// Auto-connect when module loads with delay
 if (typeof window !== 'undefined') {
-  websocketClient.connect();
+  setTimeout(() => {
+    websocketClient.connect();
+  }, 1000);
 }
