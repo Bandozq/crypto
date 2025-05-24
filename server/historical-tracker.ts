@@ -1,9 +1,177 @@
 import { db } from "./db";
 import { opportunities } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, gte } from "drizzle-orm";
+import { storage } from "./storage";
 
 // Historical data tracking for opportunity performance
 export class HistoricalTracker {
+  
+  // Track opportunity velocity by category - how fast new opportunities appear
+  async getOpportunityVelocity(timeframeHours: number = 24) {
+    try {
+      const allOpportunities = await storage.getAllOpportunities();
+      const cutoffTime = new Date(Date.now() - (timeframeHours * 60 * 60 * 1000));
+      
+      // Group by category and count new opportunities
+      const categoryVelocity = new Map<string, { 
+        count: number; 
+        avgHotness: number; 
+        sources: Set<string>;
+        totalValue: number;
+      }>();
+      
+      allOpportunities.forEach(opp => {
+        const createdAt = new Date(opp.createdAt || 0);
+        if (createdAt > cutoffTime) {
+          const category = opp.category || 'Unknown';
+          const existing = categoryVelocity.get(category) || { 
+            count: 0, 
+            avgHotness: 0, 
+            sources: new Set(),
+            totalValue: 0 
+          };
+          
+          existing.count += 1;
+          existing.avgHotness = ((existing.avgHotness * (existing.count - 1)) + (opp.hotnessScore || 0)) / existing.count;
+          existing.totalValue += opp.estimatedValue || 0;
+          
+          // Track which source discovered this opportunity first
+          if (opp.source) existing.sources.add(opp.source);
+          
+          categoryVelocity.set(category, existing);
+        }
+      });
+      
+      return Array.from(categoryVelocity.entries()).map(([category, data]) => ({
+        category,
+        newOpportunities: data.count,
+        velocityPerHour: Number((data.count / timeframeHours).toFixed(2)),
+        averageHotness: Math.round(data.avgHotness),
+        totalEstimatedValue: data.totalValue,
+        leadingSources: Array.from(data.sources),
+        trend: data.count > 5 ? 'accelerating' : data.count > 2 ? 'steady' : 'slow'
+      })).sort((a, b) => b.velocityPerHour - a.velocityPerHour);
+      
+    } catch (error) {
+      console.error('Failed to calculate opportunity velocity:', error);
+      return [];
+    }
+  }
+
+  // Track hotness score progression over time for all opportunities
+  async getHotnessProgression(days: number = 7) {
+    try {
+      const allOpportunities = await storage.getAllOpportunities();
+      
+      // Group opportunities by hotness score ranges
+      const scoreRanges = {
+        'Very Hot (80-100)': allOpportunities.filter(o => (o.hotnessScore || 0) >= 80).length,
+        'Hot (60-79)': allOpportunities.filter(o => (o.hotnessScore || 0) >= 60 && (o.hotnessScore || 0) < 80).length,
+        'Warm (40-59)': allOpportunities.filter(o => (o.hotnessScore || 0) >= 40 && (o.hotnessScore || 0) < 60).length,
+        'Cool (0-39)': allOpportunities.filter(o => (o.hotnessScore || 0) < 40).length
+      };
+
+      // Calculate trends by category
+      const categoryHotness = new Map<string, { avgScore: number; count: number; topScore: number }>();
+      
+      allOpportunities.forEach(opp => {
+        const category = opp.category || 'Unknown';
+        const existing = categoryHotness.get(category) || { avgScore: 0, count: 0, topScore: 0 };
+        
+        existing.count += 1;
+        existing.avgScore = ((existing.avgScore * (existing.count - 1)) + (opp.hotnessScore || 0)) / existing.count;
+        existing.topScore = Math.max(existing.topScore, opp.hotnessScore || 0);
+        
+        categoryHotness.set(category, existing);
+      });
+
+      return {
+        scoreDistribution: scoreRanges,
+        categoryHotness: Array.from(categoryHotness.entries()).map(([category, data]) => ({
+          category,
+          averageHotness: Math.round(data.avgScore),
+          topHotness: data.topScore,
+          opportunityCount: data.count
+        })).sort((a, b) => b.averageHotness - a.averageHotness),
+        totalOpportunities: allOpportunities.length,
+        averageGlobalHotness: Math.round(
+          allOpportunities.reduce((sum, opp) => sum + (opp.hotnessScore || 0), 0) / allOpportunities.length
+        )
+      };
+      
+    } catch (error) {
+      console.error('Failed to get hotness progression:', error);
+      return null;
+    }
+  }
+
+  // Analyze source correlation - which sources predict the hottest opportunities first
+  async getSourceCorrelation() {
+    try {
+      const allOpportunities = await storage.getAllOpportunities();
+      
+      // Group by source and analyze performance
+      const sourcePerformance = new Map<string, {
+        count: number;
+        avgHotness: number;
+        topOpportunities: any[];
+        categories: Set<string>;
+        recentCount: number;
+      }>();
+
+      const last24Hours = new Date(Date.now() - (24 * 60 * 60 * 1000));
+
+      allOpportunities.forEach(opp => {
+        const source = opp.source || 'Unknown';
+        const existing = sourcePerformance.get(source) || {
+          count: 0,
+          avgHotness: 0,
+          topOpportunities: [],
+          categories: new Set(),
+          recentCount: 0
+        };
+
+        existing.count += 1;
+        existing.avgHotness = ((existing.avgHotness * (existing.count - 1)) + (opp.hotnessScore || 0)) / existing.count;
+        
+        if (opp.category) existing.categories.add(opp.category);
+        
+        // Track recent discoveries
+        const createdAt = new Date(opp.createdAt || 0);
+        if (createdAt > last24Hours) {
+          existing.recentCount += 1;
+        }
+
+        // Keep track of top opportunities from this source
+        existing.topOpportunities.push({
+          name: opp.name,
+          hotness: opp.hotnessScore || 0,
+          category: opp.category
+        });
+        existing.topOpportunities.sort((a, b) => b.hotness - a.hotness);
+        existing.topOpportunities = existing.topOpportunities.slice(0, 3); // Keep top 3
+
+        sourcePerformance.set(source, existing);
+      });
+
+      return Array.from(sourcePerformance.entries()).map(([source, data]) => ({
+        source,
+        totalOpportunities: data.count,
+        averageHotness: Math.round(data.avgHotness),
+        recentDiscoveries: data.recentCount,
+        discoveryRate: Number((data.recentCount / 24).toFixed(2)), // per hour
+        categories: Array.from(data.categories),
+        topOpportunities: data.topOpportunities,
+        performance: data.avgHotness >= 70 ? 'excellent' : 
+                    data.avgHotness >= 50 ? 'good' : 
+                    data.avgHotness >= 30 ? 'fair' : 'poor'
+      })).sort((a, b) => b.averageHotness - a.averageHotness);
+
+    } catch (error) {
+      console.error('Failed to get source correlation:', error);
+      return [];
+    }
+  }
   
   // Track opportunity performance over time
   async trackOpportunityPerformance(opportunityId: number) {

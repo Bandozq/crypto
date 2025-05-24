@@ -149,7 +149,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(dataSourceStatus);
   });
 
-  // Analytics and Historical Data endpoints
+  // Enhanced Analytics and Historical Data endpoints
+  app.get("/api/analytics/velocity", async (req, res) => {
+    try {
+      const timeframe = parseInt(req.query.hours as string) || 24;
+      const velocity = await historicalTracker.getOpportunityVelocity(timeframe);
+      res.json(velocity);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch opportunity velocity" });
+    }
+  });
+
+  app.get("/api/analytics/hotness-progression", async (_req, res) => {
+    try {
+      const progression = await historicalTracker.getHotnessProgression();
+      res.json(progression);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hotness progression" });
+    }
+  });
+
+  app.get("/api/analytics/source-correlation", async (_req, res) => {
+    try {
+      const correlation = await historicalTracker.getSourceCorrelation();
+      res.json(correlation);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch source correlation" });
+    }
+  });
+
   app.get("/api/analytics/trends", async (req, res) => {
     try {
       const { timeframe = '30d' } = req.query;

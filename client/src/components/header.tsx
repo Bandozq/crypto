@@ -6,6 +6,7 @@ import PriceAlerts from "./price-alerts";
 import DataSourceStatus from "./data-source-status";
 import PortfolioIntegration from "./portfolio-integration";
 import AnalyticsDashboard from "./analytics-dashboard";
+import TrendAnalysisDashboard from "./trend-analysis-dashboard";
 
 interface HeaderProps {
   stats?: {
@@ -69,12 +70,12 @@ export default function Header({ stats, opportunities = [] }: HeaderProps) {
                 </Button>
               </PortfolioIntegration>
 
-              {/* Analytics Dashboard */}
-              <AnalyticsDashboard opportunities={opportunities}>
+              {/* Trend Analysis Dashboard */}
+              <TrendAnalysisDashboard>
                 <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
                   <BarChart3 className="h-4 w-4" />
                 </Button>
-              </AnalyticsDashboard>
+              </TrendAnalysisDashboard>
 
               {/* Price Alerts */}
               <PriceAlerts>
