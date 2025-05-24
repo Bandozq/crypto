@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext, useMemo } from "react";
 import Header from "@/components/header";
 import FilterBar from "@/components/filter-bar";
 import OpportunityCard from "@/components/opportunity-card";
@@ -38,16 +38,9 @@ export default function Dashboard() {
     refetchInterval: 60000, // Refresh every 60 seconds
   });
 
-  // Fetch all opportunities with filters
+  // Fetch all opportunities
   const { data: allOpportunities, isLoading: allLoading } = useQuery({
-    queryKey: [
-      "/api/opportunities",
-      { 
-        category: selectedCategory,
-        timeFrame: selectedTimeFrame,
-        search: searchQuery || undefined,
-      }
-    ],
+    queryKey: ["/api/opportunities"],
     refetchInterval: 60000,
   });
 
@@ -57,7 +50,33 @@ export default function Dashboard() {
     refetchInterval: 60000,
   });
 
-  const displayedOpportunities = allOpportunities?.slice(0, displayLimit) || [];
+  // Apply client-side filtering
+  const filteredOpportunities = useMemo(() => {
+    if (!allOpportunities || !Array.isArray(allOpportunities)) return [];
+    
+    let filtered = [...allOpportunities];
+
+    // Filter by category
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((opp: any) => 
+        opp.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((opp: any) =>
+        opp.name?.toLowerCase().includes(query) ||
+        opp.description?.toLowerCase().includes(query) ||
+        opp.category?.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [allOpportunities, selectedCategory, searchQuery]);
+
+  const displayedOpportunities = filteredOpportunities.slice(0, displayLimit);
 
   const loadMore = () => {
     setDisplayLimit(prev => prev + 8);
