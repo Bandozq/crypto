@@ -1,4 +1,6 @@
 import { users, opportunities, type User, type InsertUser, type Opportunity, type InsertOpportunity } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, like, and, gte } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -18,124 +20,95 @@ export interface IStorage {
   getHotOpportunities(limit: number): Promise<Opportunity[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private opportunities: Map<number, Opportunity>;
-  private currentUserId: number;
-  private currentOpportunityId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.opportunities = new Map();
-    this.currentUserId = 1;
-    this.currentOpportunityId = 1;
-  }
-
-  // User methods
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
-  // Opportunity methods
   async getAllOpportunities(): Promise<Opportunity[]> {
-    return Array.from(this.opportunities.values())
-      .filter(opp => opp.isActive)
-      .sort((a, b) => (b.hotnessScore || 0) - (a.hotnessScore || 0));
+    return await db.select().from(opportunities).orderBy(desc(opportunities.hotnessScore));
   }
 
   async getOpportunity(id: number): Promise<Opportunity | undefined> {
-    return this.opportunities.get(id);
+    const [opportunity] = await db.select().from(opportunities).where(eq(opportunities.id, id));
+    return opportunity || undefined;
   }
 
   async createOpportunity(insertOpportunity: InsertOpportunity): Promise<Opportunity> {
-    const id = this.currentOpportunityId++;
-    const now = new Date();
-    const opportunity: Opportunity = {
-      ...insertOpportunity,
-      id,
-      createdAt: now,
-      updatedAt: now,
-      imageUrl: insertOpportunity.imageUrl || null,
-      websiteUrl: insertOpportunity.websiteUrl || null,
-      discordUrl: insertOpportunity.discordUrl || null,
-      twitterUrl: insertOpportunity.twitterUrl || null,
-      estimatedValue: insertOpportunity.estimatedValue || null,
-      timeRemaining: insertOpportunity.timeRemaining || null,
-      deadline: insertOpportunity.deadline || null,
-      participants: insertOpportunity.participants || null,
-      hotnessScore: insertOpportunity.hotnessScore || 0,
-      twitterFollowers: insertOpportunity.twitterFollowers || 0,
-      discordMembers: insertOpportunity.discordMembers || 0,
-      tradingVolume: insertOpportunity.tradingVolume || 0,
-      marketCap: insertOpportunity.marketCap || 0,
-      isActive: insertOpportunity.isActive !== undefined ? insertOpportunity.isActive : true,
-    };
-    this.opportunities.set(id, opportunity);
+    const [opportunity] = await db
+      .insert(opportunities)
+      .values(insertOpportunity)
+      .returning();
     return opportunity;
   }
 
   async updateOpportunity(id: number, updates: Partial<InsertOpportunity>): Promise<Opportunity | undefined> {
-    const existing = this.opportunities.get(id);
-    if (!existing) return undefined;
-
-    const updated: Opportunity = {
-      ...existing,
-      ...updates,
-      updatedAt: new Date(),
-    };
-    this.opportunities.set(id, updated);
-    return updated;
+    const [opportunity] = await db
+      .update(opportunities)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(opportunities.id, id))
+      .returning();
+    return opportunity || undefined;
   }
 
   async deleteOpportunity(id: number): Promise<boolean> {
-    return this.opportunities.delete(id);
+    const result = await db.delete(opportunities).where(eq(opportunities.id, id));
+    return result.rowCount! > 0;
   }
 
   async getOpportunitiesByCategory(category: string): Promise<Opportunity[]> {
-    return Array.from(this.opportunities.values())
-      .filter(opp => opp.isActive && opp.category.toLowerCase() === category.toLowerCase())
-      .sort((a, b) => (b.hotnessScore || 0) - (a.hotnessScore || 0));
+    return await db
+      .select()
+      .from(opportunities)
+      .where(eq(opportunities.category, category))
+      .orderBy(desc(opportunities.hotnessScore));
   }
 
   async getOpportunitiesByTimeFrame(hours: number): Promise<Opportunity[]> {
     const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
-    return Array.from(this.opportunities.values())
-      .filter(opp => opp.isActive && opp.createdAt >= cutoffTime)
-      .sort((a, b) => (b.hotnessScore || 0) - (a.hotnessScore || 0));
+    return await db
+      .select()
+      .from(opportunities)
+      .where(gte(opportunities.createdAt, cutoffTime))
+      .orderBy(desc(opportunities.hotnessScore));
   }
 
   async searchOpportunities(query: string): Promise<Opportunity[]> {
-    const searchTerm = query.toLowerCase();
-    return Array.from(this.opportunities.values())
-      .filter(opp => 
-        opp.isActive && (
-          opp.name.toLowerCase().includes(searchTerm) ||
-          opp.description.toLowerCase().includes(searchTerm) ||
-          opp.category.toLowerCase().includes(searchTerm)
+    const searchTerm = `%${query}%`;
+    return await db
+      .select()
+      .from(opportunities)
+      .where(
+        and(
+          eq(opportunities.isActive, true),
+          like(opportunities.name, searchTerm)
         )
       )
-      .sort((a, b) => (b.hotnessScore || 0) - (a.hotnessScore || 0));
+      .orderBy(desc(opportunities.hotnessScore));
   }
 
   async getHotOpportunities(limit: number): Promise<Opportunity[]> {
-    return Array.from(this.opportunities.values())
-      .filter(opp => opp.isActive)
-      .sort((a, b) => (b.hotnessScore || 0) - (a.hotnessScore || 0))
-      .slice(0, limit);
+    return await db
+      .select()
+      .from(opportunities)
+      .where(eq(opportunities.isActive, true))
+      .orderBy(desc(opportunities.hotnessScore))
+      .limit(limit);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
