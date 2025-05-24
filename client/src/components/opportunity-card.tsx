@@ -1,4 +1,4 @@
-import { ExternalLink, Bookmark, Star, Flame, Zap } from "lucide-react";
+import { ExternalLink, Bookmark, Star, Flame, Zap, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Opportunity } from "@shared/schema";
@@ -7,12 +7,16 @@ interface OpportunityCardProps {
   opportunity: Opportunity;
   isHot?: boolean;
   borderColorClass: string;
+  onToggleFavorite?: (id: number) => void;
+  isFavorite?: boolean;
 }
 
 export default function OpportunityCard({ 
   opportunity, 
   isHot = false, 
-  borderColorClass 
+  borderColorClass,
+  onToggleFavorite,
+  isFavorite = false
 }: OpportunityCardProps) {
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -85,6 +89,22 @@ export default function OpportunityCard({
             <span>{Math.round(opportunity.hotnessScore || 0)}</span>
           </div>
         </div>
+
+        {/* Favorite Button */}
+        {onToggleFavorite && (
+          <div className="absolute top-3 right-3 z-10">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleFavorite(opportunity.id)}
+              className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 backdrop-blur-sm"
+            >
+              <Heart 
+                className={`h-4 w-4 ${isFavorite ? 'text-red-400 fill-current' : 'text-white'}`} 
+              />
+            </Button>
+          </div>
+        )}
 
         {/* Image with crypto-themed design */}
         <div className="w-full h-32 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center relative overflow-hidden">

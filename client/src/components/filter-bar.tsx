@@ -1,7 +1,8 @@
-import { Search } from "lucide-react";
+import { Search, ArrowUpDown, Download, SlidersHorizontal, Heart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AdvancedFilters from "./advanced-filters";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -10,6 +11,11 @@ interface FilterBarProps {
   onCategoryChange: (category: string) => void;
   selectedTimeFrame: string;
   onTimeFrameChange: (timeFrame: string) => void;
+  onSortChange?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
+  onAdvancedFiltersChange?: (filters: any) => void;
+  onExport?: (format: 'csv' | 'pdf') => void;
+  totalResults?: number;
+  favoriteCount?: number;
 }
 
 const categories = [
