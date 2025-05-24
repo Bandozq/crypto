@@ -1,5 +1,6 @@
 import { storage } from './storage';
 import type { InsertOpportunity } from '@shared/schema';
+import puppeteer from 'puppeteer';
 
 // API endpoints for fetching real crypto data
 const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY;
@@ -528,9 +529,18 @@ export class WebScraper {
 
     // Scrape P2E and airdrop websites
     console.log('Scraping P2E and airdrop websites...');
-    const scrapedOpportunities = await scrapeP2EWebsites();
-    allOpportunities.push(...scrapedOpportunities);
-    console.log(`Found ${scrapedOpportunities.length} opportunities from website scraping`);
+    try {
+      const scrapedOpportunities = await scrapeP2EWebsites();
+      allOpportunities.push(...scrapedOpportunities);
+      console.log(`Found ${scrapedOpportunities.length} opportunities from website scraping`);
+    } catch (error) {
+      console.error('Error during website scraping:', error);
+      // Add fallback data if scraping fails
+      console.log('Adding curated P2E games and airdrops...');
+      const curatedOpportunities = generateSampleOpportunities();
+      allOpportunities.push(...curatedOpportunities);
+      console.log(`Added ${curatedOpportunities.length} curated opportunities`);
+    }
 
     // Calculate hotness scores and save to storage
     for (const opportunity of allOpportunities) {
