@@ -1,5 +1,6 @@
 import { Rocket, Settings, Bell, Activity, Wallet, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import SettingsDialog from "@/components/settings-dialog";
 import PriceAlerts from "./price-alerts";
 import DataSourceStatus from "./data-source-status";
@@ -35,24 +36,30 @@ export default function Header({ stats, opportunities = [] }: HeaderProps) {
           
           <div className="flex items-center space-x-4">
             <div className="hidden lg:flex items-center space-x-6 text-sm">
-              <div className="text-center">
-                <div className="text-crypto-blue font-semibold">
-                  {stats?.totalOpportunities?.toLocaleString() || '0'}
+              <Link href="/opportunities">
+                <div className="text-center cursor-pointer hover:bg-slate-800 p-2 rounded-lg transition-colors">
+                  <div className="text-crypto-blue font-semibold">
+                    {stats?.totalOpportunities?.toLocaleString() || '0'}
+                  </div>
+                  <div className="text-gray-400 text-xs">Opportunities</div>
                 </div>
-                <div className="text-gray-400 text-xs">Opportunities</div>
-              </div>
-              <div className="text-center">
-                <div className="text-crypto-green font-semibold">
-                  {stats?.activeAirdrops || '0'}
+              </Link>
+              <Link href="/airdrops">
+                <div className="text-center cursor-pointer hover:bg-slate-800 p-2 rounded-lg transition-colors">
+                  <div className="text-crypto-green font-semibold">
+                    {stats?.activeAirdrops || '0'}
+                  </div>
+                  <div className="text-gray-400 text-xs">Active Airdrops</div>
                 </div>
-                <div className="text-gray-400 text-xs">Active Airdrops</div>
-              </div>
-              <div className="text-center">
-                <div className="text-crypto-yellow font-semibold">
-                  {stats?.newListings || '0'}
+              </Link>
+              <Link href="/new-today">
+                <div className="text-center cursor-pointer hover:bg-slate-800 p-2 rounded-lg transition-colors">
+                  <div className="text-crypto-yellow font-semibold">
+                    {stats?.newListings || '0'}
+                  </div>
+                  <div className="text-gray-400 text-xs">New Today</div>
                 </div>
-                <div className="text-gray-400 text-xs">New Today</div>
-              </div>
+              </Link>
             </div>
             <div className="flex items-center gap-3">
               {/* Portfolio Integration */}
