@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -14,7 +15,8 @@ import {
   BarChart3,
   Gauge,
   Star,
-  Award
+  Award,
+  X
 } from "lucide-react";
 
 interface TrendAnalysisDashboardProps {
@@ -22,6 +24,7 @@ interface TrendAnalysisDashboardProps {
 }
 
 export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashboardProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const { data: velocityData = [] } = useQuery({
     queryKey: ["/api/analytics/velocity"],
     refetchInterval: 60000,
@@ -39,9 +42,12 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
 
   return (
     <div className="space-y-6">
-      {children}
+      <div onClick={() => setIsOpen(true)}>
+        {children}
+      </div>
       
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden">
           <div className="flex items-center justify-between p-6 border-b border-slate-700">
             <div>
@@ -51,8 +57,8 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
               </h2>
               <p className="text-slate-400">Real-time analysis of your 517 authentic opportunities</p>
             </div>
-            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
-              ✕
+            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>
+              <X className="h-4 w-4" />
             </Button>
           </div>
 
@@ -301,7 +307,8 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
             </Tabs>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
