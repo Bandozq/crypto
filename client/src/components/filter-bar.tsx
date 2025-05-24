@@ -41,6 +41,11 @@ export default function FilterBar({
   onCategoryChange,
   selectedTimeFrame,
   onTimeFrameChange,
+  onSortChange,
+  onAdvancedFiltersChange,
+  onExport,
+  totalResults = 0,
+  favoriteCount = 0,
 }: FilterBarProps) {
   return (
     <div className="bg-crypto-card border-b border-gray-700">
@@ -94,6 +99,74 @@ export default function FilterBar({
               ))}
             </SelectContent>
           </Select>
+
+          {/* Advanced Controls */}
+          <div className="flex items-center gap-2">
+            {/* Sort Controls */}
+            {onSortChange && (
+              <Select onValueChange={(value) => onSortChange(value, 'desc')}>
+                <SelectTrigger className="w-[160px] bg-crypto-dark border-gray-600 text-white">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Sort by..." />
+                </SelectTrigger>
+                <SelectContent className="bg-crypto-dark border-gray-600">
+                  <SelectItem value="hotnessScore" className="text-white">Hotness Score</SelectItem>
+                  <SelectItem value="estimatedValue" className="text-white">Value</SelectItem>
+                  <SelectItem value="name" className="text-white">Name</SelectItem>
+                  <SelectItem value="category" className="text-white">Category</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Advanced Filters */}
+            {onAdvancedFiltersChange && (
+              <AdvancedFilters 
+                onFiltersChange={onAdvancedFiltersChange}
+                currentFilters={{}}
+              />
+            )}
+
+            {/* Export Options */}
+            {onExport && (
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onExport('csv')}
+                  className="border-gray-600 hover:bg-gray-700 gap-1"
+                >
+                  <Download className="h-3 w-3" />
+                  CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onExport('pdf')}
+                  className="border-gray-600 hover:bg-gray-700 gap-1"
+                >
+                  <Download className="h-3 w-3" />
+                  PDF
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Results Summary */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700">
+          <div className="flex items-center gap-4 text-sm text-gray-400">
+            <span>{totalResults} opportunities found</span>
+            {favoriteCount > 0 && (
+              <span className="flex items-center gap-1">
+                <Heart className="h-3 w-3 text-red-400 fill-current" />
+                {favoriteCount} favorites
+              </span>
+            )}
+          </div>
+          
+          <div className="text-xs text-gray-500">
+            Live data from CoinGecko, CoinMarketCap & P2E websites
+          </div>
         </div>
       </div>
     </div>
