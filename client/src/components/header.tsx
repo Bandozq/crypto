@@ -1,6 +1,8 @@
-import { Rocket, Settings } from "lucide-react";
+import { Rocket, Settings, Bell, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SettingsDialog from "@/components/settings-dialog";
+import PriceAlerts from "./price-alerts";
+import DataSourceStatus from "./data-source-status";
 
 interface HeaderProps {
   stats?: {
@@ -49,12 +51,28 @@ export default function Header({ stats }: HeaderProps) {
                 <div className="text-gray-400 text-xs">New Today</div>
               </div>
             </div>
-            <SettingsDialog>
-              <Button className="bg-crypto-blue hover:bg-blue-600 px-4 py-2 text-sm font-medium">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
-            </SettingsDialog>
+            <div className="flex items-center gap-3">
+              {/* Price Alerts */}
+              <PriceAlerts>
+                <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
+                  <Bell className="h-4 w-4" />
+                </Button>
+              </PriceAlerts>
+
+              {/* Data Source Status */}
+              <DataSourceStatus>
+                <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
+                  <Activity className="h-4 w-4" />
+                </Button>
+              </DataSourceStatus>
+
+              <SettingsDialog>
+                <Button className="bg-crypto-blue hover:bg-blue-600 px-4 py-2 text-sm font-medium">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Button>
+              </SettingsDialog>
+            </div>
           </div>
         </div>
       </div>

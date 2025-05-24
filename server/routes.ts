@@ -151,30 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
   // Setup WebSocket server for real-time updates
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-  
-  wss.on('connection', (ws) => {
-    console.log('New WebSocket client connected');
-    wsClients.add(ws);
-    
-    // Send initial data source status
-    ws.send(JSON.stringify({
-      type: 'data_sources_status',
-      data: dataSourceStatus
-    }));
-    
-    ws.on('close', () => {
-      console.log('WebSocket client disconnected');
-      wsClients.delete(ws);
-    });
-    
-    ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      wsClients.delete(ws);
-    });
-  });
-
-  console.log('WebSocket server enabled for real-time updates');
+  setupWebSocketServer(httpServer);
 
   return httpServer;
 }
