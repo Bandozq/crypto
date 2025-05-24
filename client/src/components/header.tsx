@@ -1,4 +1,4 @@
-import { Rocket, Settings, Bell, Activity, Wallet, BarChart3 } from "lucide-react";
+import { Rocket, Settings, Bell, Activity, Wallet, BarChart3, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import SettingsDialog from "@/components/settings-dialog";
@@ -80,7 +80,7 @@ export default function Header({ stats, opportunities = [] }: HeaderProps) {
               {/* Trend Analysis Dashboard */}
               <TrendAnalysisDashboard>
                 <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
-                  <Activity className="h-4 w-4" />
+                  <TrendingUp className="h-4 w-4" />
                 </Button>
               </TrendAnalysisDashboard>
 
