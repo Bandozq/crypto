@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Header from "@/components/header";
 import FilterBar from "@/components/filter-bar";
 import OpportunityCard from "@/components/opportunity-card";
+import NotificationsPanel from "@/components/notifications-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Flame, List, ChevronDown } from "lucide-react";
@@ -173,15 +174,17 @@ export default function Dashboard() {
 
       {/* Floating Notification Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <Button className="bg-crypto-blue hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 relative">
-          <span className="sr-only">Notifications</span>
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-          </svg>
-          <div className="absolute -top-2 -right-2 bg-crypto-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-            3
-          </div>
-        </Button>
+        <NotificationsPanel>
+          <Button className="bg-crypto-blue hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 relative">
+            <span className="sr-only">Notifications</span>
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+            </svg>
+            <div className="absolute -top-2 -right-2 bg-crypto-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+              3
+            </div>
+          </Button>
+        </NotificationsPanel>
       </div>
     </div>
   );
