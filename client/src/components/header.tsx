@@ -1,5 +1,6 @@
 import { Rocket, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SettingsDialog from "@/components/settings-dialog";
 
 interface HeaderProps {
   stats?: {
@@ -48,10 +49,12 @@ export default function Header({ stats }: HeaderProps) {
                 <div className="text-gray-400 text-xs">New Today</div>
               </div>
             </div>
-            <Button className="bg-crypto-blue hover:bg-blue-600 px-4 py-2 text-sm font-medium">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
+            <SettingsDialog>
+              <Button className="bg-crypto-blue hover:bg-blue-600 px-4 py-2 text-sm font-medium">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Button>
+            </SettingsDialog>
           </div>
         </div>
       </div>
