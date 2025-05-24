@@ -42,13 +42,23 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
   });
 
   useEffect(() => {
-    if (opportunities.length > 0) {
-      generateAnalytics();
-    }
+    generateAnalytics();
   }, [opportunities, timeRange]);
 
   const generateAnalytics = () => {
-    // Generate category statistics
+    // Ensure we have opportunities data
+    if (!opportunities || opportunities.length === 0) {
+      // Set empty data structure for when no opportunities are loaded yet
+      setAnalyticsData({
+        trends: [],
+        categories: [],
+        performance: [],
+        hottest: []
+      });
+      return;
+    }
+
+    // Generate category statistics from real opportunities
     const categoryMap = new Map<string, { count: number; totalHotness: number; }>();
     
     opportunities.forEach(opp => {

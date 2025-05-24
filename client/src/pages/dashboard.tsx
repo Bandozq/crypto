@@ -92,7 +92,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-crypto-dark text-white">
-      <Header stats={stats} />
+      <Header stats={stats} opportunities={filteredOpportunities} />
       <FilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
