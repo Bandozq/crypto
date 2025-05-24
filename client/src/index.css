@@ -29,14 +29,14 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
   
-  /* Crypto theme colors */
+  /* Crypto theme colors - enhanced visibility */
   --crypto-dark: 26 10% 10%;
   --crypto-card: 24 9% 18%;
-  --crypto-blue: 199 100% 50%;
-  --crypto-orange: 19 92% 59%;
-  --crypto-yellow: 48 100% 62%;
-  --crypto-green: 142 69% 58%;
-  --crypto-red: 0 84% 60%;
+  --crypto-blue: 199 100% 60%;
+  --crypto-orange: 19 92% 65%;
+  --crypto-yellow: 48 100% 70%;
+  --crypto-green: 142 69% 65%;
+  --crypto-red: 0 84% 65%;
 }
 
 .dark {

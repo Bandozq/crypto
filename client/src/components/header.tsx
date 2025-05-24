@@ -21,9 +21,9 @@ export default function Header({ stats }: HeaderProps) {
               <Rocket className="text-crypto-blue text-2xl" />
               <h1 className="text-xl font-bold text-white">CryptoHunt</h1>
             </div>
-            <div className="hidden md:flex items-center space-x-2 bg-crypto-green bg-opacity-20 px-3 py-1 rounded-full">
-              <div className="w-2 h-2 bg-crypto-green rounded-full animate-pulse"></div>
-              <span className="text-sm text-crypto-green font-medium">Live Updates</span>
+            <div className="hidden md:flex items-center space-x-2 bg-green-500 bg-opacity-20 px-3 py-1 rounded-full border border-green-500 border-opacity-30">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm text-green-300 font-semibold">Live Updates</span>
             </div>
           </div>
           
