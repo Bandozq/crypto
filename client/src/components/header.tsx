@@ -1,8 +1,10 @@
-import { Rocket, Settings, Bell, Activity } from "lucide-react";
+import { Rocket, Settings, Bell, Activity, Wallet, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SettingsDialog from "@/components/settings-dialog";
 import PriceAlerts from "./price-alerts";
 import DataSourceStatus from "./data-source-status";
+import PortfolioIntegration from "./portfolio-integration";
+import AnalyticsDashboard from "./analytics-dashboard";
 
 interface HeaderProps {
   stats?: {
@@ -12,9 +14,10 @@ interface HeaderProps {
     p2eGames?: number;
     totalValue?: number;
   };
+  opportunities?: any[];
 }
 
-export default function Header({ stats }: HeaderProps) {
+export default function Header({ stats, opportunities = [] }: HeaderProps) {
   return (
     <header className="bg-crypto-card border-b border-gray-700 sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,6 +55,20 @@ export default function Header({ stats }: HeaderProps) {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {/* Portfolio Integration */}
+              <PortfolioIntegration>
+                <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
+                  <Wallet className="h-4 w-4" />
+                </Button>
+              </PortfolioIntegration>
+
+              {/* Analytics Dashboard */}
+              <AnalyticsDashboard opportunities={opportunities}>
+                <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
+                  <BarChart3 className="h-4 w-4" />
+                </Button>
+              </AnalyticsDashboard>
+
               {/* Price Alerts */}
               <PriceAlerts>
                 <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">

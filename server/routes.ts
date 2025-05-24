@@ -10,6 +10,7 @@ import {
   broadcastToClients,
   type PriceAlert 
 } from "./websocket-handler";
+import { historicalTracker } from "./historical-tracker";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize the scraping scheduler
@@ -146,6 +147,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/data-sources/status", async (req, res) => {
     res.json(dataSourceStatus);
+  });
+
+  // Analytics and Historical Data endpoints
+  app.get("/api/analytics/trends", async (req, res) => {
+    try {
+      const { timeframe = '30d' } = req.query;
+      const trends = await historicalTracker.getCategoryTrends(timeframe as string);
+      res.json(trends);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch trends" });
+    }
+  });
+
+  app.get("/api/analytics/success-rates", async (req, res) => {
+    try {
+      const analytics = await historicalTracker.getSuccessRateAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch success rates" });
+    }
+  });
+
+  app.get("/api/opportunities/:id/history", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { days = '30' } = req.query;
+      const history = await historicalTracker.getOpportunityTrend(parseInt(id), parseInt(days as string));
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch opportunity history" });
+    }
   });
 
   const httpServer = createServer(app);
