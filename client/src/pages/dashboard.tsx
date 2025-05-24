@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import Header from "@/components/header";
 import FilterBar from "@/components/filter-bar";
 import OpportunityCard from "@/components/opportunity-card";
@@ -9,11 +9,28 @@ import { Button } from "@/components/ui/button";
 import { Flame, List, ChevronDown } from "lucide-react";
 import type { Opportunity } from "@shared/schema";
 
+// Create notification context
+interface NotificationContextType {
+  unreadCount: number;
+  setUnreadCount: (count: number) => void;
+}
+
+const NotificationContext = createContext<NotificationContextType | null>(null);
+
+export const useNotifications = () => {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error('useNotifications must be used within NotificationProvider');
+  }
+  return context;
+};
+
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedTimeFrame, setSelectedTimeFrame] = useState("24h");
   const [displayLimit, setDisplayLimit] = useState(8);
+  const [notificationCount, setNotificationCount] = useState(3);
 
   // Fetch hot opportunities
   const { data: hotOpportunities, isLoading: hotLoading } = useQuery({
@@ -174,15 +191,17 @@ export default function Dashboard() {
 
       {/* Floating Notification Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <NotificationsPanel>
+        <NotificationsPanel onUnreadCountChange={setNotificationCount}>
           <Button className="bg-crypto-blue hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 relative">
             <span className="sr-only">Notifications</span>
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
             </svg>
-            <div className="absolute -top-2 -right-2 bg-crypto-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-              3
-            </div>
+            {notificationCount > 0 && (
+              <div className="absolute -top-2 -right-2 bg-crypto-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                {notificationCount}
+              </div>
+            )}
           </Button>
         </NotificationsPanel>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 
 interface NotificationsPanelProps {
   children: React.ReactNode;
+  onUnreadCountChange?: (count: number) => void;
 }
 
 interface Notification {
@@ -20,7 +21,7 @@ interface Notification {
   data?: any;
 }
 
-export default function NotificationsPanel({ children }: NotificationsPanelProps) {
+export default function NotificationsPanel({ children, onUnreadCountChange }: NotificationsPanelProps) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([
     {
@@ -50,6 +51,11 @@ export default function NotificationsPanel({ children }: NotificationsPanelProps
   ]);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  // Update parent component with unread count changes
+  useEffect(() => {
+    onUnreadCountChange?.(unreadCount);
+  }, [unreadCount, onUnreadCountChange]);
 
   const markAsRead = (id: string) => {
     setNotifications(prev => 
