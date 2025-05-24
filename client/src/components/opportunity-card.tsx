@@ -80,7 +80,7 @@ export default function OpportunityCard({
   };
 
   return (
-    <div className={`bg-crypto-card rounded-xl border-2 border-amber-100 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden`}>
+    <div className={`bg-crypto-card rounded-xl border-2 border-white shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden`}>
       <div className="relative">
         {/* Hotness Badge */}
         <div className="absolute top-3 left-3 z-10">
