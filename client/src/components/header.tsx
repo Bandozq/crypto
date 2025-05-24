@@ -70,10 +70,17 @@ export default function Header({ stats, opportunities = [] }: HeaderProps) {
                 </Button>
               </PortfolioIntegration>
 
+              {/* Analytics Dashboard */}
+              <AnalyticsDashboard opportunities={opportunities}>
+                <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
+                  <BarChart3 className="h-4 w-4" />
+                </Button>
+              </AnalyticsDashboard>
+
               {/* Trend Analysis Dashboard */}
               <TrendAnalysisDashboard>
                 <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
-                  <BarChart3 className="h-4 w-4" />
+                  <Activity className="h-4 w-4" />
                 </Button>
               </TrendAnalysisDashboard>
 
