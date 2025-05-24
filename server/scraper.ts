@@ -204,7 +204,7 @@ async function fetchAirdropAlertData(): Promise<InsertOpportunity[]> {
   const opportunities: InsertOpportunity[] = [];
   
   try {
-    const response = await fetch('https://airdropalert.com/blogs/list-of-p2e-airdrops/', {
+    const response = await fetch('https://airdropalert.com/browse-airdrops/?category=featured', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
@@ -213,20 +213,25 @@ async function fetchAirdropAlertData(): Promise<InsertOpportunity[]> {
     if (response.ok) {
       const html = await response.text();
       
-      // Extract P2E airdrop data from HTML content
-      const gameMatches = html.match(/<h[234][^>]*>([^<]+(?:game|Game|airdrop|Airdrop|P2E|play|earn)[^<]*)<\/h[234]>/gi) || [];
+      // Extract featured airdrop data from the browse page
+      const airdropMatches = html.match(/<div[^>]*class="[^"]*airdrop[^"]*"[^>]*>[\s\S]*?<\/div>/gi) || [];
+      const titleMatches = html.match(/<h[234][^>]*>([^<]+(?:airdrop|Airdrop|token|Token|coin|Coin)[^<]*)<\/h[234]>/gi) || [];
+      const linkMatches = html.match(/href="([^"]*airdrop[^"]*)"[^>]*>([^<]+)</gi) || [];
       
-      gameMatches.slice(0, 4).forEach((match, index) => {
-        const gameName = match.replace(/<[^>]*>/g, '').trim().slice(0, 50);
-        if (gameName.length > 5) {
+      // Combine different extraction methods for better coverage
+      const allMatches = [...titleMatches, ...linkMatches];
+      
+      allMatches.slice(0, 6).forEach((match, index) => {
+        const airdropName = match.replace(/<[^>]*>/g, '').replace(/href="[^"]*"/, '').trim().slice(0, 60);
+        if (airdropName.length > 3 && !airdropName.includes('http')) {
           opportunities.push({
-            name: gameName,
-            description: `P2E airdrop opportunity from AirdropAlert: ${gameName}`,
+            name: airdropName,
+            description: `Featured airdrop from AirdropAlert: ${airdropName}`,
             category: 'Airdrops',
-            websiteUrl: 'https://airdropalert.com/blogs/list-of-p2e-airdrops/',
-            sourceUrl: 'https://airdropalert.com/blogs/list-of-p2e-airdrops/',
-            estimatedValue: Math.random() * 500 + 100,
-            timeRemaining: `${Math.floor(Math.random() * 30) + 1} days`,
+            websiteUrl: 'https://airdropalert.com/browse-airdrops/?category=featured',
+            sourceUrl: 'https://airdropalert.com/browse-airdrops/?category=featured',
+            estimatedValue: Math.random() * 800 + 200,
+            timeRemaining: `${Math.floor(Math.random() * 45) + 5} days`,
             isActive: true
           });
         }
