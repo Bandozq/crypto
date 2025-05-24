@@ -31,6 +31,23 @@ export default function OpportunityCard({
     }
   };
 
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'p2e games':
+        return '🎮';
+      case 'airdrops':
+        return '🪂';
+      case 'defi':
+        return '🏦';
+      case 'nft':
+        return '🖼️';
+      case 'new listings':
+        return '🚀';
+      default:
+        return '💎';
+    }
+  };
+
   const getHotnessIcon = (score: number) => {
     if (score >= 250) return <Flame className="mr-1 animate-pulse h-3 w-3" />;
     if (score >= 200) return <Zap className="mr-1 h-3 w-3" />;
@@ -69,8 +86,8 @@ export default function OpportunityCard({
           </div>
         </div>
 
-        {/* Image placeholder */}
-        <div className="w-full h-32 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+        {/* Image with crypto-themed design */}
+        <div className="w-full h-32 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center relative overflow-hidden">
           {opportunity.imageUrl ? (
             <img 
               src={opportunity.imageUrl} 
@@ -82,12 +99,12 @@ export default function OpportunityCard({
             />
           ) : (
             <div className="text-gray-400 text-center">
-              <div className="text-2xl mb-1">🎮</div>
-              <div className="text-xs">No Image</div>
+              <div className="text-3xl mb-1">{getCategoryIcon(opportunity.category)}</div>
+              <div className="text-xs font-medium">{opportunity.category}</div>
             </div>
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-crypto-card via-transparent to-transparent"></div>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-crypto-card via-transparent to-transparent"></div>
       </div>
 
       <div className="p-4">
