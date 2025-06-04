@@ -1,13 +1,9 @@
 import { Rocket, Settings, Bell, Activity, Wallet, BarChart3, TrendingUp, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import SettingsDialog from "@/components/settings-dialog";
 import PriceAlerts from "./price-alerts";
 import DataSourceStatus from "./data-source-status";
 import PortfolioIntegration from "./portfolio-integration";
-import AnalyticsDashboard from "./analytics-dashboard";
-import TrendAnalysisDashboard from "./trend-analysis-dashboard";
-import SocialSentimentDashboard from "./social-sentiment-dashboard";
 
 interface HeaderProps {
   stats?: {
