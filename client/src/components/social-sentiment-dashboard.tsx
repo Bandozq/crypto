@@ -47,6 +47,9 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
     refetchInterval: 60000, // Refresh every minute
   });
 
+  // Type-safe access to sentiment data
+  const typedSentimentData = Array.isArray(sentimentData) ? sentimentData : [];
+
   useEffect(() => {
     // Listen for real-time Twitter updates via WebSocket
     const handleWebSocketMessage = (event: MessageEvent) => {
@@ -119,7 +122,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
               {/* Real-time Sentiment Overview */}
               <div className="grid grid-cols-4 gap-4">
                 <div className="text-center p-3 bg-crypto-dark rounded-lg">
-                  <div className="text-2xl font-bold text-blue-400">{sentimentData.length}</div>
+                  <div className="text-2xl font-bold text-blue-400">{typedSentimentData.length}</div>
                   <div className="text-xs text-gray-400">Tracked Terms</div>
                 </div>
                 <div className="text-center p-3 bg-crypto-dark rounded-lg">
@@ -149,7 +152,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {sentimentData.slice(0, 8).map((item: any, index: number) => (
+                      {typedSentimentData.slice(0, 8).map((item: any, index: number) => (
                         <div key={index} className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">{item.term}</span>

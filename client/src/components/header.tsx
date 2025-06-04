@@ -1,4 +1,4 @@
-import { Rocket, Settings, Bell, Activity, Wallet, BarChart3, TrendingUp } from "lucide-react";
+import { Rocket, Settings, Bell, Activity, Wallet, BarChart3, TrendingUp, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import SettingsDialog from "@/components/settings-dialog";
@@ -7,6 +7,7 @@ import DataSourceStatus from "./data-source-status";
 import PortfolioIntegration from "./portfolio-integration";
 import AnalyticsDashboard from "./analytics-dashboard";
 import TrendAnalysisDashboard from "./trend-analysis-dashboard";
+import SocialSentimentDashboard from "./social-sentiment-dashboard";
 
 interface HeaderProps {
   stats?: {
@@ -83,6 +84,13 @@ export default function Header({ stats, opportunities = [] }: HeaderProps) {
                   <TrendingUp className="h-4 w-4" />
                 </Button>
               </TrendAnalysisDashboard>
+
+              {/* Social Sentiment Dashboard */}
+              <SocialSentimentDashboard>
+                <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
+                  <Twitter className="h-4 w-4" />
+                </Button>
+              </SocialSentimentDashboard>
 
               {/* Price Alerts */}
               <PriceAlerts>
