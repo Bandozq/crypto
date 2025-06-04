@@ -62,7 +62,7 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
             </Button>
           </div>
 
-          <div className="p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
+          <div className="p-4 overflow-y-auto max-h-[calc(75vh-80px)]">
             <Tabs defaultValue="velocity" className="space-y-6">
               <TabsList className="bg-slate-800 border-slate-700">
                 <TabsTrigger value="velocity" className="data-[state=active]:bg-blue-600">

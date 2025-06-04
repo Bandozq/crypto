@@ -161,7 +161,7 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
               </div>
             </CardHeader>
             
-            <CardContent className="p-3 space-y-4 overflow-y-auto max-h-[calc(70vh-80px)]">
+            <CardContent className="p-3 space-y-4 overflow-y-auto max-h-[calc(75vh-80px)]">
             {/* Key Metrics */}
             <div className="grid grid-cols-4 gap-4">
               <div className="text-center p-3 bg-crypto-dark rounded-lg">

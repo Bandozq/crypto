@@ -118,7 +118,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
               </div>
             </CardHeader>
             
-            <CardContent className="p-3 space-y-3 overflow-y-auto max-h-[calc(70vh-80px)]">
+            <CardContent className="p-3 space-y-3 overflow-y-auto max-h-[calc(75vh-80px)]">
               {/* Real-time Sentiment Overview */}
               <div className="grid grid-cols-4 gap-3">
                 <div className="text-center p-2 bg-crypto-dark rounded-lg">
