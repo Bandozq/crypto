@@ -28,6 +28,10 @@ interface TwitterTrend {
 
 export class TwitterTracker {
   private bearerToken: string;
+  private apiKey: string;
+  private apiSecret: string;
+  private accessToken: string;
+  private accessTokenSecret: string;
   private isTracking = false;
   private trackingTerms = [
     'P2E', 'PlayToEarn', 'GameFi', 'crypto gaming', 'blockchain gaming',
@@ -39,8 +43,13 @@ export class TwitterTracker {
 
   constructor() {
     this.bearerToken = process.env.TWITTER_BEARER_TOKEN || '';
-    if (!this.bearerToken) {
-      console.warn('Twitter Bearer Token not provided - social sentiment tracking disabled');
+    this.apiKey = process.env.TWITTER_API_KEY || '';
+    this.apiSecret = process.env.TWITTER_API_SECRET || '';
+    this.accessToken = process.env.TWITTER_ACCESS_TOKEN || '';
+    this.accessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET || '';
+    
+    if (!this.bearerToken && (!this.apiKey || !this.apiSecret)) {
+      console.warn('Twitter API credentials not properly configured - social sentiment tracking disabled');
     }
   }
 

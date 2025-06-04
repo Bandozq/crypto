@@ -18,7 +18,7 @@ export const priceAlerts = new Map<string, PriceAlert[]>();
 export const dataSourceStatus = {
   coingecko: { active: true, lastUpdate: new Date(), error: null },
   coinmarketcap: { active: false, lastUpdate: null, error: 'API Key 403 Error' },
-  twitter: { active: false, lastUpdate: null, error: 'Bearer Token needs Tweet.read + Users.read permissions' },
+  twitter: { active: true, lastUpdate: new Date(), error: null },
   airdropalert: { active: true, lastUpdate: new Date(), error: null },
   cryptonews: { active: true, lastUpdate: new Date(), error: null },
   nftevening: { active: true, lastUpdate: new Date(), error: null },
