@@ -16,13 +16,13 @@ export const priceAlerts = new Map<string, PriceAlert[]>();
 
 // Data source status tracking
 export const dataSourceStatus = {
-  coingecko: { active: true, lastUpdate: new Date(), error: null },
-  coinmarketcap: { active: false, lastUpdate: null, error: 'API Key 403 Error' },
-  twitter: { active: true, lastUpdate: new Date(), error: null },
-  airdropalert: { active: true, lastUpdate: new Date(), error: null },
-  cryptonews: { active: true, lastUpdate: new Date(), error: null },
-  nftevening: { active: true, lastUpdate: new Date(), error: null },
-  playtoearn: { active: true, lastUpdate: new Date(), error: null }
+  coingecko: { active: true, lastUpdate: new Date().toISOString(), error: null },
+  coinmarketcap: { active: false, lastUpdate: null, error: 'API Key Required - 403 Forbidden' },
+  twitter: { active: true, lastUpdate: new Date().toISOString(), error: null },
+  airdropalert: { active: true, lastUpdate: new Date().toISOString(), error: null },
+  cryptonews: { active: true, lastUpdate: new Date().toISOString(), error: null },
+  nftevening: { active: true, lastUpdate: new Date().toISOString(), error: null },
+  playtoearn: { active: true, lastUpdate: new Date().toISOString(), error: null }
 };
 
 // Helper function to broadcast to all WebSocket clients

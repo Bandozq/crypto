@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import type { InsertOpportunity } from '@shared/schema';
 import puppeteer from 'puppeteer';
+import { updateDataSourceStatus } from './websocket-handler';
 
 // API endpoints for fetching real crypto data
 const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY;
@@ -81,21 +82,36 @@ async function fetchTrendingCoins(): Promise<InsertOpportunity[]> {
 
 // Fetch new listings from CoinMarketCap API
 async function fetchNewListings(): Promise<InsertOpportunity[]> {
+  if (!COINMARKETCAP_API_KEY) {
+    console.log('CoinMarketCap API key not configured');
+    return [];
+  }
+
   try {
     const response = await fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/new', {
       headers: {
-        'X-CMC_PRO_API_KEY': COINMARKETCAP_API_KEY || '',
+        'X-CMC_PRO_API_KEY': COINMARKETCAP_API_KEY,
         'Accept': 'application/json'
       }
     });
     
     if (!response.ok) {
+      if (response.status === 403) {
+        console.error('CoinMarketCap API key invalid or insufficient permissions');
+      } else if (response.status === 429) {
+        console.error('CoinMarketCap API rate limit exceeded');
+      }
       throw new Error(`CoinMarketCap API error: ${response.status}`);
     }
     
     const data = await response.json();
     
-    return data.data.slice(0, 10).map((coin: any) => ({
+    if (!data.data || !Array.isArray(data.data)) {
+      console.error('Unexpected CoinMarketCap API response format');
+      return [];
+    }
+    
+    const opportunities = data.data.slice(0, 10).map((coin: any) => ({
       name: coin.name,
       description: `Recently listed cryptocurrency (${coin.symbol}). Market Cap: $${coin.quote?.USD?.market_cap?.toLocaleString() || 'N/A'}. ${coin.name} is a new addition to the cryptocurrency market.`,
       category: 'New Listings',
@@ -104,19 +120,31 @@ async function fetchNewListings(): Promise<InsertOpportunity[]> {
       websiteUrl: null,
       discordUrl: null,
       twitterUrl: null,
-      estimatedValue: coin.quote?.USD?.price ? Math.floor(coin.quote.USD.price * 100) : Math.floor(Math.random() * 1000) + 50,
+      estimatedValue: coin.quote?.USD?.price ? Math.floor(coin.quote.USD.price * 100) : null,
       timeRemaining: `${Math.floor(Math.random() * 14) + 1}d ${Math.floor(Math.random() * 24)}h`,
       deadline: null,
       participants: Math.floor(Math.random() * 30000) + 3000,
       twitterFollowers: Math.floor(Math.random() * 75000) + 5000,
       discordMembers: Math.floor(Math.random() * 15000) + 1000,
-      tradingVolume: coin.quote?.USD?.volume_24h || Math.floor(Math.random() * 2000000) + 50000,
-      marketCap: coin.quote?.USD?.market_cap || Math.floor(Math.random() * 50000000) + 500000,
+      tradingVolume: coin.quote?.USD?.volume_24h || null,
+      marketCap: coin.quote?.USD?.market_cap || null,
       isActive: true,
       hotnessScore: 0, // Will be calculated
     }));
+
+    // Update status on successful API call
+    updateDataSourceStatus('coinmarketcap', { 
+      active: true, 
+      error: null 
+    });
+
+    return opportunities;
   } catch (error) {
     console.error('Error fetching new listings:', error);
+    updateDataSourceStatus('coinmarketcap', { 
+      active: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
     return [];
   }
 }
