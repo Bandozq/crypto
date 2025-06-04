@@ -43,6 +43,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         opportunities = await storage.getAllOpportunities();
       }
 
+      // Filter out mainstream cryptocurrencies (Bitcoin and Ethereum)
+      opportunities = opportunities.filter(opp => {
+        const name = opp.name.toLowerCase();
+        return !name.includes('bitcoin') && 
+               !name.includes('ethereum') &&
+               name !== 'btc' &&
+               name !== 'eth';
+      });
+
       if (limit) {
         opportunities = opportunities.slice(0, parseInt(limit as string));
       }
@@ -57,7 +66,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/opportunities/hot", async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 4;
-      const hotOpportunities = await storage.getHotOpportunities(limit);
+      let hotOpportunities = await storage.getHotOpportunities(limit * 2); // Get more to account for filtering
+      
+      // Filter out mainstream cryptocurrencies (Bitcoin and Ethereum)
+      hotOpportunities = hotOpportunities.filter(opp => {
+        const name = opp.name.toLowerCase();
+        return !name.includes('bitcoin') && 
+               !name.includes('ethereum') &&
+               name !== 'btc' &&
+               name !== 'eth';
+      });
+      
+      // Take the requested number after filtering
+      hotOpportunities = hotOpportunities.slice(0, limit);
+      
       res.json(hotOpportunities);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch hot opportunities" });
@@ -94,8 +116,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get dashboard stats
   app.get("/api/stats", async (req, res) => {
     try {
-      const allOpportunities = await storage.getAllOpportunities();
-      const todayOpportunities = await storage.getOpportunitiesByTimeFrame(24);
+      let allOpportunities = await storage.getAllOpportunities();
+      let todayOpportunities = await storage.getOpportunitiesByTimeFrame(24);
+      
+      // Filter out mainstream cryptocurrencies (Bitcoin and Ethereum) from stats
+      const filterMainstream = (opportunities: any[]) => opportunities.filter(opp => {
+        const name = opp.name.toLowerCase();
+        return !name.includes('bitcoin') && 
+               !name.includes('ethereum') &&
+               name !== 'btc' &&
+               name !== 'eth';
+      });
+      
+      allOpportunities = filterMainstream(allOpportunities);
+      todayOpportunities = filterMainstream(todayOpportunities);
       
       const stats = {
         totalOpportunities: allOpportunities.length,
