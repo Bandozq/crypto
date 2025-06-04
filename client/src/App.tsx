@@ -7,6 +7,10 @@ import Dashboard from "@/pages/dashboard";
 import OpportunitiesPage from "@/pages/opportunities";
 import AirdropsPage from "@/pages/airdrops";
 import NewTodayPage from "@/pages/new-today";
+import AnalyticsPage from "@/pages/analytics";
+import TrendAnalysisPage from "@/pages/trend-analysis";
+import SocialSentimentPage from "@/pages/social-sentiment";
+import SettingsPage from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +20,10 @@ function Router() {
       <Route path="/opportunities" component={OpportunitiesPage} />
       <Route path="/airdrops" component={AirdropsPage} />
       <Route path="/new-today" component={NewTodayPage} />
+      <Route path="/analytics" component={AnalyticsPage} />
+      <Route path="/trend-analysis" component={TrendAnalysisPage} />
+      <Route path="/social-sentiment" component={SocialSentimentPage} />
+      <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>
   );

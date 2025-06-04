@@ -72,25 +72,25 @@ export default function Header({ stats, opportunities = [] }: HeaderProps) {
               </PortfolioIntegration>
 
               {/* Analytics Dashboard */}
-              <AnalyticsDashboard opportunities={opportunities}>
+              <Link href="/analytics">
                 <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
                   <BarChart3 className="h-4 w-4" />
                 </Button>
-              </AnalyticsDashboard>
+              </Link>
 
               {/* Trend Analysis Dashboard */}
-              <TrendAnalysisDashboard>
+              <Link href="/trend-analysis">
                 <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
                   <TrendingUp className="h-4 w-4" />
                 </Button>
-              </TrendAnalysisDashboard>
+              </Link>
 
               {/* Social Sentiment Dashboard */}
-              <SocialSentimentDashboard>
+              <Link href="/social-sentiment">
                 <Button variant="outline" className="border-gray-600 hover:bg-gray-700 px-3 py-2 text-sm">
                   <Twitter className="h-4 w-4" />
                 </Button>
-              </SocialSentimentDashboard>
+              </Link>
 
               {/* Price Alerts */}
               <PriceAlerts>
@@ -106,12 +106,12 @@ export default function Header({ stats, opportunities = [] }: HeaderProps) {
                 </Button>
               </DataSourceStatus>
 
-              <SettingsDialog>
+              <Link href="/settings">
                 <Button className="bg-crypto-blue hover:bg-blue-600 px-4 py-2 text-sm font-medium">
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </Button>
-              </SettingsDialog>
+              </Link>
             </div>
           </div>
         </div>
