@@ -105,7 +105,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-4xl h-[75vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
+          <Card className="w-full max-w-4xl max-h-[70vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
             <CardHeader className="border-b border-gray-600">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -118,26 +118,26 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
               </div>
             </CardHeader>
             
-            <CardContent className="p-4 space-y-4 overflow-y-auto max-h-[calc(75vh-100px)]">
+            <CardContent className="p-3 space-y-3 overflow-y-auto max-h-[calc(70vh-80px)]">
               {/* Real-time Sentiment Overview */}
-              <div className="grid grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-crypto-dark rounded-lg">
-                  <div className="text-2xl font-bold text-blue-400">{typedSentimentData.length}</div>
-                  <div className="text-xs text-gray-400">Tracked Terms</div>
+              <div className="grid grid-cols-4 gap-3">
+                <div className="text-center p-2 bg-crypto-dark rounded-lg">
+                  <div className="text-lg font-bold text-blue-400">{typedSentimentData.length}</div>
+                  <div className="text-xs text-gray-400">Terms</div>
                 </div>
-                <div className="text-center p-3 bg-crypto-dark rounded-lg">
-                  <div className="text-2xl font-bold text-green-400">{latestMentions.length}</div>
-                  <div className="text-xs text-gray-400">Recent Mentions</div>
+                <div className="text-center p-2 bg-crypto-dark rounded-lg">
+                  <div className="text-lg font-bold text-green-400">{latestMentions.length}</div>
+                  <div className="text-xs text-gray-400">Mentions</div>
                 </div>
-                <div className="text-center p-3 bg-crypto-dark rounded-lg">
-                  <div className="text-2xl font-bold text-purple-400">{currentTrends.filter(t => t.trending).length}</div>
-                  <div className="text-xs text-gray-400">Trending Now</div>
+                <div className="text-center p-2 bg-crypto-dark rounded-lg">
+                  <div className="text-lg font-bold text-purple-400">{currentTrends.filter(t => t.trending).length}</div>
+                  <div className="text-xs text-gray-400">Trending</div>
                 </div>
-                <div className="text-center p-3 bg-crypto-dark rounded-lg">
-                  <div className="text-2xl font-bold text-yellow-400">
+                <div className="text-center p-2 bg-crypto-dark rounded-lg">
+                  <div className="text-lg font-bold text-yellow-400">
                     {currentTrends.reduce((sum, t) => sum + t.influencerMentions, 0)}
                   </div>
-                  <div className="text-xs text-gray-400">Influencer Mentions</div>
+                  <div className="text-xs text-gray-400">Influencers</div>
                 </div>
               </div>
 
@@ -182,7 +182,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ResponsiveContainer width="100%" height={200}>
+                    <ResponsiveContainer width="100%" height={150}>
                       <BarChart data={typedSentimentData.slice(0, 6)}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                         <XAxis 
@@ -262,7 +262,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
+                  <ResponsiveContainer width="100%" height={150}>
                     <LineChart data={typedSentimentData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                       <XAxis 
