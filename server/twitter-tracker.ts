@@ -54,26 +54,31 @@ export class TwitterTracker {
   }
 
   async startTracking() {
-    if (!this.bearerToken) {
-      throw new Error('Twitter Bearer Token is required for social sentiment tracking');
+    if (!this.bearerToken && (!this.apiKey || !this.apiSecret)) {
+      throw new Error('Twitter API credentials are required for social sentiment tracking');
     }
 
     this.isTracking = true;
     console.log('Starting Twitter social sentiment tracking...');
 
-    // Track mentions every 5 minutes
+    // Track mentions every 15 minutes to respect rate limits
     setInterval(() => {
       this.trackMentions();
-    }, 5 * 60 * 1000);
-
-    // Track trends every 15 minutes
-    setInterval(() => {
-      this.updateTrends();
     }, 15 * 60 * 1000);
 
-    // Initial tracking
-    this.trackMentions();
-    this.updateTrends();
+    // Track trends every 30 minutes to avoid rate limiting
+    setInterval(() => {
+      this.updateTrends();
+    }, 30 * 60 * 1000);
+
+    // Initial tracking with delay to avoid immediate rate limit
+    setTimeout(() => {
+      this.trackMentions();
+    }, 5000);
+    
+    setTimeout(() => {
+      this.updateTrends();
+    }, 10000);
   }
 
   private async trackMentions() {
@@ -82,23 +87,36 @@ export class TwitterTracker {
     try {
       const mentions: TwitterMention[] = [];
       
-      for (const term of this.trackingTerms) {
-        const termMentions = await this.searchTweets(term);
-        mentions.push(...termMentions);
+      // Process only top 3 terms to avoid rate limits
+      const priorityTerms = ['P2E', 'airdrop', 'GameFi'];
+      
+      for (const term of priorityTerms) {
+        try {
+          const termMentions = await this.searchTweets(term);
+          mentions.push(...termMentions);
+          
+          // Add 2 second delay between requests to respect rate limits
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (error) {
+          console.log(`Rate limit reached for term: ${term}, skipping...`);
+          break; // Stop processing more terms if we hit rate limit
+        }
       }
 
-      // Sort by influence score (followers * engagement)
-      mentions.sort((a, b) => {
-        const scoreA = a.authorFollowers * (a.publicMetrics.retweetCount + a.publicMetrics.likeCount);
-        const scoreB = b.authorFollowers * (b.publicMetrics.retweetCount + b.publicMetrics.likeCount);
-        return scoreB - scoreA;
-      });
+      if (mentions.length > 0) {
+        // Sort by influence score (followers * engagement)
+        mentions.sort((a, b) => {
+          const scoreA = a.authorFollowers * (a.publicMetrics.retweetCount + a.publicMetrics.likeCount);
+          const scoreB = b.authorFollowers * (b.publicMetrics.retweetCount + b.publicMetrics.likeCount);
+          return scoreB - scoreA;
+        });
 
-      // Broadcast top mentions to connected clients
-      broadcastToClients({
-        type: 'twitter_mentions',
-        data: mentions.slice(0, 20) // Top 20 most influential mentions
-      });
+        // Broadcast top mentions to connected clients
+        broadcastToClients({
+          type: 'twitter_mentions',
+          data: mentions.slice(0, 10) // Top 10 most influential mentions
+        });
+      }
 
     } catch (error) {
       console.error('Error tracking Twitter mentions:', error);
@@ -158,21 +176,34 @@ export class TwitterTracker {
     try {
       const trends: TwitterTrend[] = [];
 
-      for (const term of this.trackingTerms) {
-        const trend = await this.getTrendData(term);
-        if (trend) {
-          trends.push(trend);
+      // Process only top 2 terms for trends to avoid rate limits
+      const trendTerms = ['P2E', 'airdrop'];
+
+      for (const term of trendTerms) {
+        try {
+          const trend = await this.getTrendData(term);
+          if (trend) {
+            trends.push(trend);
+          }
+          
+          // Add 3 second delay between trend requests
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        } catch (error) {
+          console.log(`Rate limit reached for trend: ${term}, skipping...`);
+          break;
         }
       }
 
-      // Sort by trending score
-      trends.sort((a, b) => b.volume - a.volume);
+      if (trends.length > 0) {
+        // Sort by trending score
+        trends.sort((a, b) => b.volume - a.volume);
 
-      // Broadcast trends to connected clients
-      broadcastToClients({
-        type: 'twitter_trends',
-        data: trends
-      });
+        // Broadcast trends to connected clients
+        broadcastToClients({
+          type: 'twitter_trends',
+          data: trends
+        });
+      }
 
     } catch (error) {
       console.error('Error updating Twitter trends:', error);
@@ -253,14 +284,25 @@ export class TwitterTracker {
     // This method can be called by API endpoints to get current trending sentiment
     const trends: { term: string; sentiment: number; volume: number }[] = [];
     
-    for (const term of this.trackingTerms.slice(0, 10)) { // Top 10 terms
-      const trendData = await this.getTrendData(term);
-      if (trendData) {
-        trends.push({
-          term: trendData.term,
-          sentiment: trendData.sentiment,
-          volume: trendData.volume
-        });
+    // Only process 2 terms per API call to respect rate limits
+    const limitedTerms = ['P2E', 'airdrop'];
+    
+    for (const term of limitedTerms) {
+      try {
+        const trendData = await this.getTrendData(term);
+        if (trendData) {
+          trends.push({
+            term: trendData.term,
+            sentiment: trendData.sentiment,
+            volume: trendData.volume
+          });
+        }
+        
+        // Add delay between API calls
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.log(`Rate limit reached, returning current trends...`);
+        break;
       }
     }
     
