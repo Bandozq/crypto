@@ -104,8 +104,8 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-4xl max-h-[75vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
+        <div className="fixed top-0 left-0 w-full h-full bg-black/50 z-[9999] flex items-center justify-center p-4">
+          <Card className="w-full max-w-4xl h-[80vh] bg-crypto-card border-gray-600 text-white shadow-xl flex flex-col">
             <CardHeader className="border-b border-gray-600">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -118,7 +118,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
               </div>
             </CardHeader>
             
-            <CardContent className="p-3 space-y-3 overflow-y-auto max-h-[calc(75vh-80px)]">
+            <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Real-time Sentiment Overview */}
               <div className="grid grid-cols-4 gap-3">
                 <div className="text-center p-2 bg-crypto-dark rounded-lg">
