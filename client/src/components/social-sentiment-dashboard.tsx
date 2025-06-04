@@ -183,7 +183,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={sentimentData.slice(0, 6)}>
+                      <BarChart data={typedSentimentData.slice(0, 6)}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                         <XAxis 
                           dataKey="term" 
@@ -263,7 +263,7 @@ export default function SocialSentimentDashboard({ children }: SocialSentimentDa
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={sentimentData}>
+                    <LineChart data={typedSentimentData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                       <XAxis 
                         dataKey="term" 
