@@ -136,7 +136,7 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-6xl max-h-[85vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
+          <Card className="w-full max-w-5xl max-h-[70vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
             <CardHeader className="border-b border-gray-600">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
               </div>
             </CardHeader>
             
-            <CardContent className="p-4 space-y-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+            <CardContent className="p-3 space-y-4 overflow-y-auto max-h-[calc(70vh-80px)]">
             {/* Key Metrics */}
             <div className="grid grid-cols-4 gap-4">
               <div className="text-center p-3 bg-crypto-dark rounded-lg">

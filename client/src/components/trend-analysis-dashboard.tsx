@@ -47,8 +47,8 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
       </div>
       
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-crypto-card border border-gray-600 rounded-lg w-full max-w-5xl max-h-[70vh] overflow-hidden">
           <div className="flex items-center justify-between p-6 border-b border-slate-700">
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -62,7 +62,7 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
             </Button>
           </div>
 
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+          <div className="p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
             <Tabs defaultValue="velocity" className="space-y-6">
               <TabsList className="bg-slate-800 border-slate-700">
                 <TabsTrigger value="velocity" className="data-[state=active]:bg-blue-600">

@@ -73,7 +73,7 @@ export default function SettingsDialog({ children }: SettingsDialogProps) {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-crypto-card border-gray-600">
+      <DialogContent className="max-w-4xl max-h-[70vh] overflow-y-auto bg-crypto-card border-gray-600">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center">
             <Settings className="mr-2 h-5 w-5 text-crypto-blue" />
