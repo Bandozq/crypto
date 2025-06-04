@@ -47,8 +47,8 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
       </div>
       
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-crypto-card border border-gray-600 rounded-lg w-full max-w-5xl max-h-[70vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-crypto-card border border-gray-600 rounded-lg w-full max-w-4xl max-h-[75vh] overflow-hidden">
           <div className="flex items-center justify-between p-6 border-b border-slate-700">
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">

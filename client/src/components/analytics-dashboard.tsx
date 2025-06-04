@@ -135,8 +135,8 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-5xl max-h-[70vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-4xl max-h-[75vh] bg-crypto-card border-gray-600 text-white shadow-xl overflow-hidden">
             <CardHeader className="border-b border-gray-600">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export default function AnalyticsDashboard({ children, opportunities }: Analytic
               Analytics updated in real-time • Google Trends integration available
             </div>
           </CardContent>
-        </Card>
+          </Card>
         </div>
       )}
     </div>
