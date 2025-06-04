@@ -11,10 +11,19 @@ import {
   type PriceAlert 
 } from "./websocket-handler";
 import { historicalTracker } from "./historical-tracker";
+import { twitterTracker } from "./twitter-tracker";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize the scraping scheduler
   initializeScheduler();
+  
+  // Initialize Twitter tracking for social sentiment
+  try {
+    await twitterTracker.startTracking();
+    console.log('Twitter social sentiment tracking initialized');
+  } catch (error) {
+    console.log('Twitter tracking disabled:', error instanceof Error ? error.message : 'Unknown error');
+  }
 
   // Get all opportunities
   app.get("/api/opportunities", async (req, res) => {
@@ -205,6 +214,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(history);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch opportunity history" });
+    }
+  });
+
+  // Twitter social sentiment endpoints
+  app.get("/api/social/sentiment", async (req, res) => {
+    try {
+      const sentiment = await twitterTracker.getTrendingSentiment();
+      res.json(sentiment);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch social sentiment data" });
     }
   });
 
