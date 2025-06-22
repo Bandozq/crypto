@@ -6,6 +6,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY drizzle.config.ts ./
 
 # Install all dependencies (including dev dependencies for build)
 RUN npm ci
@@ -27,6 +28,7 @@ RUN apk add --no-cache curl
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY drizzle.config.ts ./
 
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
