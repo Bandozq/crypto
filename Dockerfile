@@ -25,6 +25,7 @@ RUN apk add --no-cache curl
 
 # Copy package files
 COPY package*.json ./
+COPY tsconfig.json ./
 
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
