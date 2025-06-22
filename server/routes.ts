@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertOpportunitySchema } from "@shared/schema";
-import { initializeScheduler } from "./scheduler";
 import { 
   setupWebSocketServer, 
   priceAlerts, 
@@ -14,17 +13,6 @@ import { historicalTracker } from "./historical-tracker";
 import { twitterTracker } from "./twitter-tracker";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize the scraping scheduler
-  initializeScheduler();
-  
-  // Initialize Twitter tracking for social sentiment
-  try {
-    await twitterTracker.startTracking();
-    console.log('Twitter social sentiment tracking initialized');
-  } catch (error) {
-    console.log('Twitter tracking disabled:', error instanceof Error ? error.message : 'Unknown error');
-  }
-
   // Get all opportunities
   app.get("/api/opportunities", async (req, res) => {
     try {
