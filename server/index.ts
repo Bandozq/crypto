@@ -3,8 +3,6 @@ import { registerRoutes } from "./routes";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { initializeScheduler } from "./scheduler";
-import { twitterTracker } from "./twitter-tracker";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -96,15 +94,6 @@ app.use((req, res, next) => {
     },
     () => {
       console.log(`serving on port ${port}`);
-
-      // Initialize long-running tasks after the server is listening
-      initializeScheduler();
-      try {
-        twitterTracker.startTracking();
-        console.log('Twitter social sentiment tracking initialized');
-      } catch (error) {
-        console.log('Twitter tracking disabled:', error instanceof Error ? error.message : 'Unknown error');
-      }
     }
   );
 })();
