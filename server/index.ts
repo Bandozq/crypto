@@ -1,5 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 app.use(express.json());
@@ -50,22 +52,44 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    const { setupVite } = await import("./vite");
-    await setupVite(app, server);
+    const { createServer: createViteServer } = await import("vite");
+    const vite = await createViteServer({
+      server: {
+        middlewareMode: true,
+        hmr: {
+          server,
+        },
+      },
+      appType: "custom",
+    });
+
+    app.use(vite.middlewares);
   } else {
-    const { serveStatic } = await import("./vite");
-    serveStatic(app);
+    const distPath = path.resolve(import.meta.dirname, "public");
+    if (!fs.existsSync(distPath)) {
+      throw new Error(
+        `Could not find the build directory: ${distPath}, make sure to build the client first`
+      );
+    }
+    app.use(express.static(distPath));
+    // fall through to index.html if the file doesn't exist
+    app.use("*", (_req, res) => {
+      res.sendFile(path.resolve(distPath, "index.html"));
+    });
   }
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    console.log(`serving on port ${port}`);
-  });
+  server.listen(
+    {
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    },
+    () => {
+      console.log(`serving on port ${port}`);
+    }
+  );
 })();
