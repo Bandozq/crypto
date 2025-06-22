@@ -61,24 +61,27 @@ export class TwitterTracker {
     this.isTracking = true;
     console.log('Starting Twitter social sentiment tracking...');
 
-    // Track mentions every 15 minutes to respect rate limits
-    setInterval(() => {
-      this.trackMentions();
-    }, 15 * 60 * 1000);
-
-    // Track trends every 30 minutes to avoid rate limiting
-    setInterval(() => {
-      this.updateTrends();
-    }, 30 * 60 * 1000);
-
-    // Initial tracking with delay to avoid immediate rate limit
+    // Wait 60 seconds before starting the regular tracking to allow the server to become healthy
     setTimeout(() => {
-      this.trackMentions();
-    }, 5000);
-    
-    setTimeout(() => {
-      this.updateTrends();
-    }, 10000);
+      // Track mentions every 15 minutes to respect rate limits
+      setInterval(() => {
+        this.trackMentions();
+      }, 15 * 60 * 1000);
+
+      // Track trends every 30 minutes to avoid rate limiting
+      setInterval(() => {
+        this.updateTrends();
+      }, 30 * 60 * 1000);
+
+      // Initial tracking with delay to avoid immediate rate limit
+      setTimeout(() => {
+        this.trackMentions();
+      }, 5000);
+      
+      setTimeout(() => {
+        this.updateTrends();
+      }, 10000);
+    }, 60000); // 60 seconds
   }
 
   private async trackMentions() {
