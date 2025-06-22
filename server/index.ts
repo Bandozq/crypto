@@ -2,6 +2,10 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
@@ -65,7 +69,7 @@ app.use((req, res, next) => {
 
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve(import.meta.dirname, "public");
+    const distPath = path.resolve(__dirname, "public");
     if (!fs.existsSync(distPath)) {
       throw new Error(
         `Could not find the build directory: ${distPath}, make sure to build the client first`
