@@ -22,7 +22,6 @@ build
 README.md
 .eslintrc*
 .prettierrc*
-tsconfig.json
 
 # Test files
 coverage
