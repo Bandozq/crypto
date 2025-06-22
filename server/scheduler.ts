@@ -7,14 +7,6 @@ export function initializeScheduler() {
   // Initialize scraper
   webScraper.init();
 
-  // Run initial data collection immediately
-  setTimeout(() => {
-    console.log('Running initial authentic data collection...');
-    webScraper.scrapeAll().catch(error => {
-      console.error('Initial data collection failed:', error);
-    });
-  }, 2000);
-
   // Schedule scraping every 15 minutes
   cron.schedule('*/15 * * * *', async () => {
     console.log('Running scheduled scrape...');
