@@ -8,7 +8,7 @@
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "npm run db:push && NODE_ENV=production node dist/index.js",
     "check": "tsc",
-    "db:push": "drizzle-kit push --config=drizzle.config.ts",
+    "db:push": "drizzle-kit push --config=drizzle.config.ts --skip-confirmation",
     "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
     "health": "curl -f http://localhost:5000/api/stats || exit 1",
     "deps:check": "npm audit --audit-level moderate",
