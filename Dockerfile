@@ -22,8 +22,12 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install curl and chromium for health checks and puppeteer
+RUN apk add --no-cache curl chromium
+
+# Set environment variables for puppeteer
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Copy package files
 COPY package*.json ./
