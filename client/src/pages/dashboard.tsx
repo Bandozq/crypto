@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   // Fetch hot opportunities
   const { data: hotOpportunities, isLoading: hotLoading } = useQuery({
-    queryKey: ["/api/opportunities/hot", { limit: 4 }],
+    queryKey: ["/api/opportunities/hot?limit=4"],
     refetchInterval: 60000, // Refresh every 60 seconds
   });
 

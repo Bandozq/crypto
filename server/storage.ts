@@ -1,6 +1,6 @@
 import { users, opportunities, type User, type InsertUser, type Opportunity, type InsertOpportunity } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, like, and, gte } from "drizzle-orm";
+import { eq, desc, like, and, gte, notLike } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -40,7 +40,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllOpportunities(): Promise<Opportunity[]> {
-    return await db.select().from(opportunities).orderBy(desc(opportunities.hotnessScore));
+    return await db.select().from(opportunities)
+    .where(
+      and(
+        notLike(opportunities.name, '%bitcoin%'),
+        notLike(opportunities.name, '%ethereum%'),
+        notLike(opportunities.name, '%btc%'),
+        notLike(opportunities.name, '%eth%')
+      )
+    )
+    .orderBy(desc(opportunities.hotnessScore));
   }
 
   async getOpportunity(id: number): Promise<Opportunity | undefined> {
@@ -105,7 +114,15 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(opportunities)
-      .where(eq(opportunities.isActive, true))
+      .where(
+        and(
+          eq(opportunities.isActive, true),
+          notLike(opportunities.name, '%bitcoin%'),
+          notLike(opportunities.name, '%ethereum%'),
+          notLike(opportunities.name, '%btc%'),
+          notLike(opportunities.name, '%eth%')
+        )
+      )
       .orderBy(desc(opportunities.hotnessScore))
       .limit(limit);
   }
