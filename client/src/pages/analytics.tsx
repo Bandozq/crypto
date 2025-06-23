@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Activity, TrendingUp, Users, Zap } from "lucide-react";
 import { Link } from "wouter";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts';
+import type { Opportunity } from "@shared/schema";
 
 interface TrendData {
   period: string;
@@ -38,21 +39,21 @@ export default function AnalyticsPage() {
     hottest: []
   });
 
-  const { data: opportunities = [] } = useQuery({
+  const { data: opportunities = [] } = useQuery<Opportunity[]>({
     queryKey: ['/api/opportunities'],
   });
 
-  const { data: velocityData } = useQuery({
+  const { data: velocityData } = useQuery<any>({
     queryKey: ['/api/analytics/velocity'],
     refetchInterval: 30000,
   });
 
-  const { data: hotnessData } = useQuery({
+  const { data: hotnessData } = useQuery<any>({
     queryKey: ['/api/analytics/hotness-progression'],
     refetchInterval: 30000,
   });
 
-  const { data: sourceData } = useQuery({
+  const { data: sourceData } = useQuery<any>({
     queryKey: ['/api/analytics/source-correlation'],
     refetchInterval: 30000,
   });
@@ -64,7 +65,7 @@ export default function AnalyticsPage() {
   }, [opportunities, timeFrame]);
 
   const updateAnalytics = () => {
-    const categories = opportunities.reduce((acc: any, opp: any) => {
+    const categories = opportunities.reduce((acc: any, opp: Opportunity) => {
       const cat = opp.category || 'Unknown';
       if (!acc[cat]) {
         acc[cat] = { count: 0, totalHotness: 0, items: [] };
@@ -91,11 +92,11 @@ export default function AnalyticsPage() {
     }));
 
     const performance = opportunities
-      .filter((opp: any) => opp.hotnessScore && opp.hotnessScore > 70)
+      .filter((opp: Opportunity) => opp.hotnessScore && opp.hotnessScore > 70)
       .slice(0, 10);
 
-    const hottest = opportunities
-      .sort((a: any, b: any) => (b.hotnessScore || 0) - (a.hotnessScore || 0))
+    const hottest = [...opportunities]
+      .sort((a: Opportunity, b: Opportunity) => (b.hotnessScore || 0) - (a.hotnessScore || 0))
       .slice(0, 5);
 
     setAnalyticsData({ trends, categories: categoryStats, performance, hottest });
@@ -115,8 +116,9 @@ export default function AnalyticsPage() {
   const COLORS = ['#8B5CF6', '#06B6D4', '#F59E0B', '#10B981', '#EF4444', '#EC4899'];
 
   const totalOpportunities = opportunities.length;
-  const avgHotness = opportunities.reduce((sum: number, opp: any) => sum + (opp.hotnessScore || 0), 0) / totalOpportunities;
-  const topCategory = analyticsData.categories.sort((a, b) => b.count - a.count)[0];
+  const avgHotness = opportunities.reduce((sum: number, opp: Opportunity) => sum + (opp.hotnessScore || 0), 0) / (totalOpportunities || 1);
+  const topCategory = [...analyticsData.categories].sort((a, b) => b.count - a.count)[0];
+
 
   return (
     <div className="min-h-screen bg-crypto-dark text-white">
@@ -246,7 +248,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {analyticsData.hottest.map((opp: any, index: number) => (
+                {analyticsData.hottest.map((opp: Opportunity, index: number) => (
                   <div key={opp.id} className="flex items-center justify-between p-3 bg-crypto-dark rounded-lg border border-gray-600">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-crypto-blue rounded-full flex items-center justify-center text-white font-bold text-sm">

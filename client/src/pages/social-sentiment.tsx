@@ -39,7 +39,7 @@ export default function SocialSentimentPage() {
   const [currentTrends, setCurrentTrends] = useState<TwitterTrend[]>([]);
   const [latestMentions, setLatestMentions] = useState<TwitterMention[]>([]);
 
-  const { data: socialData = [] } = useQuery({
+  const { data: socialData = [] } = useQuery<any>({
     queryKey: ['/api/social/sentiment'],
     refetchInterval: 60000,
   });
@@ -133,12 +133,12 @@ export default function SocialSentimentPage() {
               <div className="text-sm text-gray-400">Recent Mentions</div>
             </div>
             <div className="text-center p-4 bg-crypto-card rounded-lg border border-gray-600">
-              <div className="text-3xl font-bold text-purple-400">{currentTrends.filter(t => t.trending).length}</div>
+              <div className="text-3xl font-bold text-purple-400">{[...currentTrends].filter(t => t.trending).length}</div>
               <div className="text-sm text-gray-400">Trending Now</div>
             </div>
             <div className="text-center p-4 bg-crypto-card rounded-lg border border-gray-600">
               <div className="text-3xl font-bold text-yellow-400">
-                {currentTrends.reduce((sum, t) => sum + t.influencerMentions, 0)}
+                {[...currentTrends].reduce((sum, t) => sum + t.influencerMentions, 0)}
               </div>
               <div className="text-sm text-gray-400">Influencer Mentions</div>
             </div>

@@ -1,20 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Search, TrendingUp, Calendar, DollarSign } from "lucide-react";
+import { ArrowLeft, Search, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 import OpportunityCard from "@/components/opportunity-card";
+import type { Opportunity } from "@shared/schema";
 
 export default function OpportunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [displayLimit, setDisplayLimit] = useState(20);
 
-  const { data: allOpportunities = [], isLoading } = useQuery({
+  const { data: allOpportunities = [], isLoading } = useQuery<Opportunity[]>({
     queryKey: ["/api/opportunities"],
     refetchInterval: 30000,
   });
@@ -23,7 +24,7 @@ export default function OpportunitiesPage() {
   const filteredOpportunities = useMemo(() => {
     if (!Array.isArray(allOpportunities)) return [];
     
-    let filtered = allOpportunities.filter((opp: any) => {
+    let filtered = allOpportunities.filter((opp: Opportunity) => {
       const name = opp.name?.toLowerCase() || '';
       const description = opp.description?.toLowerCase() || '';
       return !name.includes('ethereum') && 
@@ -35,32 +36,32 @@ export default function OpportunitiesPage() {
     });
 
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((opp: any) => 
+      filtered = filtered.filter((opp: Opportunity) => 
         opp.category?.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((opp: any) =>
+      filtered = filtered.filter((opp: Opportunity) =>
         opp.name?.toLowerCase().includes(query) ||
         opp.description?.toLowerCase().includes(query) ||
         opp.category?.toLowerCase().includes(query)
       );
     }
 
-    return filtered.sort((a: any, b: any) => (b.hotnessScore || 0) - (a.hotnessScore || 0));
+    return filtered.sort((a: Opportunity, b: Opportunity) => (b.hotnessScore || 0) - (a.hotnessScore || 0));
   }, [allOpportunities, selectedCategory, searchQuery]);
 
   const displayedOpportunities = filteredOpportunities.slice(0, displayLimit);
 
   const categories = Array.from(new Set(
     allOpportunities
-      .filter((opp: any) => {
+      .filter((opp: Opportunity) => {
         const name = opp.name?.toLowerCase() || '';
         return !name.includes('ethereum') && !name.includes('bitcoin') && !name.includes('btc') && !name.includes('eth');
       })
-      .map((opp: any) => opp.category)
+      .map((opp: Opportunity) => opp.category)
       .filter(Boolean)
   ));
 
@@ -135,7 +136,7 @@ export default function OpportunitiesPage() {
             <SelectContent className="bg-slate-900 border-slate-700">
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map((category) => (
-                <SelectItem key={category} value={category}>
+                <SelectItem key={category} value={category || ""}>
                   {category}
                 </SelectItem>
               ))}
@@ -149,7 +150,7 @@ export default function OpportunitiesPage() {
 
         {/* Opportunities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {displayedOpportunities.map((opportunity: any) => (
+          {displayedOpportunities.map((opportunity) => (
             <OpportunityCard
               key={opportunity.id}
               opportunity={opportunity}

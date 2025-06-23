@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect, createContext, useContext, useMemo } from "react";
+import { useState, createContext, useContext, useMemo } from "react";
 import Header from "@/components/header";
 import FilterBar from "@/components/filter-bar";
 import OpportunityCard from "@/components/opportunity-card";
@@ -25,6 +25,15 @@ export const useNotifications = () => {
   return context;
 };
 
+// Define the type for the stats object
+interface DashboardStats {
+  totalOpportunities: number;
+  activeAirdrops: number;
+  newListings: number;
+  p2eGames: number;
+  totalValue: number;
+}
+
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -33,19 +42,19 @@ export default function Dashboard() {
   const [notificationCount, setNotificationCount] = useState(3);
 
   // Fetch hot opportunities
-  const { data: hotOpportunities, isLoading: hotLoading } = useQuery({
+  const { data: hotOpportunities, isLoading: hotLoading } = useQuery<Opportunity[]>({
     queryKey: ["/api/opportunities/hot?limit=4"],
     refetchInterval: 60000, // Refresh every 60 seconds
   });
 
   // Fetch all opportunities
-  const { data: allOpportunities, isLoading: allLoading } = useQuery({
+  const { data: allOpportunities, isLoading: allLoading } = useQuery<Opportunity[]>({
     queryKey: ["/api/opportunities"],
     refetchInterval: 60000,
   });
 
   // Fetch dashboard stats
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<DashboardStats>({
     queryKey: ["/api/stats"],
     refetchInterval: 60000,
   });
@@ -57,7 +66,7 @@ export default function Dashboard() {
     let filtered = [...allOpportunities];
 
     // Filter out Ethereum and Bitcoin
-    filtered = filtered.filter((opp: any) => {
+    filtered = filtered.filter((opp: Opportunity) => {
       const name = opp.name?.toLowerCase() || '';
       const description = opp.description?.toLowerCase() || '';
       return !name.includes('ethereum') && 
@@ -70,7 +79,7 @@ export default function Dashboard() {
 
     // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((opp: any) => 
+      filtered = filtered.filter((opp: Opportunity) => 
         opp.category?.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
@@ -78,7 +87,7 @@ export default function Dashboard() {
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((opp: any) =>
+      filtered = filtered.filter((opp: Opportunity) =>
         opp.name?.toLowerCase().includes(query) ||
         opp.description?.toLowerCase().includes(query) ||
         opp.category?.toLowerCase().includes(query)

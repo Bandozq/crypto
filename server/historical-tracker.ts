@@ -36,7 +36,7 @@ export class HistoricalTracker {
           existing.totalValue += opp.estimatedValue || 0;
           
           // Track which source discovered this opportunity first
-          if (opp.source) existing.sources.add(opp.source);
+          if (opp.sourceUrl) existing.sources.add(opp.sourceUrl);
           
           categoryVelocity.set(category, existing);
         }
@@ -122,7 +122,7 @@ export class HistoricalTracker {
       const last24Hours = new Date(Date.now() - (24 * 60 * 60 * 1000));
 
       allOpportunities.forEach(opp => {
-        const source = opp.source || 'Unknown';
+        const source = opp.sourceUrl || 'Unknown';
         const existing = sourcePerformance.get(source) || {
           count: 0,
           avgHotness: 0,

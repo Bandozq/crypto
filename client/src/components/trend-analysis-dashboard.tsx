@@ -25,17 +25,17 @@ interface TrendAnalysisDashboardProps {
 
 export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashboardProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: velocityData = [] } = useQuery({
+  const { data: velocityData = [] } = useQuery<any>({
     queryKey: ["/api/analytics/velocity"],
     refetchInterval: 60000,
   });
 
-  const { data: hotnessData } = useQuery({
+  const { data: hotnessData = {} } = useQuery<any>({
     queryKey: ["/api/analytics/hotness-progression"],
     refetchInterval: 60000,
   });
 
-  const { data: sourceData = [] } = useQuery({
+  const { data: sourceData = [] } = useQuery<any>({
     queryKey: ["/api/analytics/source-correlation"],
     refetchInterval: 60000,
   });
@@ -182,7 +182,7 @@ export default function TrendAnalysisDashboard({ children }: TrendAnalysisDashbo
                     <CardContent>
                       {hotnessData?.categoryHotness && (
                         <div className="space-y-3">
-                          {hotnessData.categoryHotness.slice(0, 5).map((category: any, index: number) => (
+                          {[...hotnessData.categoryHotness].slice(0, 5).map((category: any, index: number) => (
                             <div key={category.category} className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${

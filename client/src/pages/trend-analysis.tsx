@@ -7,17 +7,17 @@ import { Link } from "wouter";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
 export default function TrendAnalysisPage() {
-  const { data: velocityData } = useQuery({
+  const { data: velocityData } = useQuery<any>({
     queryKey: ['/api/analytics/velocity'],
     refetchInterval: 60000,
   });
 
-  const { data: hotnessData } = useQuery({
+  const { data: hotnessData } = useQuery<any>({
     queryKey: ['/api/analytics/hotness-progression'],
     refetchInterval: 60000,
   });
 
-  const { data: sourceData } = useQuery({
+  const { data: sourceData } = useQuery<any>({
     queryKey: ['/api/analytics/source-correlation'],
     refetchInterval: 60000,
   });
