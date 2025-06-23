@@ -49,12 +49,13 @@ RUN addgroup -g 1001 -S nodejs && \
 RUN chown -R nodejs:nodejs /app
 USER nodejs
 
+ARG PORT=5000
 # Expose port
-EXPOSE 5003
+EXPOSE $PORT
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:5003/api/health || exit 1
+    CMD curl -f http://localhost:${PORT}/api/health || exit 1
 
 # Start application
 CMD ["npm", "start"]

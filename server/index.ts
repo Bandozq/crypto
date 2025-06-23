@@ -82,7 +82,7 @@ app.use((req, res, next) => {
     });
   }
 
-  const port = process.env.PORT || 5003;
+  const port = process.env.PORT || 5000;
   server.listen(
     {
       port,
