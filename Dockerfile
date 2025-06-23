@@ -50,11 +50,11 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 # Expose port
-EXPOSE 5000
+EXPOSE 5002
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:5000/api/health || exit 1
+    CMD curl -f http://localhost:5002/api/health || exit 1
 
 # Start application
-CMD fuser -k 5000/tcp && npm start
+CMD fuser -k 5002/tcp && npm start
