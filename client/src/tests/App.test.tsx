@@ -4,10 +4,13 @@ import { vi } from 'vitest';
 
 // Mock the fetch function
 global.fetch = vi.fn(() =>
-  Promise.resolve({
-    json: () => Promise.resolve([]),
-    ok: true,
-  })
+  Promise.resolve(new Response(JSON.stringify([]), {
+    status: 200,
+    statusText: 'OK',
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  }))
 );
 
 test('renders the main application component', () => {

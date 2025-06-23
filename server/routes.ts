@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 import { insertOpportunitySchema } from "@shared/schema";
 import { 
   setupWebSocketServer, 
@@ -8,9 +8,9 @@ import {
   dataSourceStatus,
   broadcastToClients,
   type PriceAlert 
-} from "./websocket-handler";
-import { historicalTracker } from "./historical-tracker";
-import { twitterTracker } from "./twitter-tracker";
+} from "./websocket-handler.js";
+import { historicalTracker } from "./historical-tracker.js";
+import { twitterTracker } from "./twitter-tracker.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint

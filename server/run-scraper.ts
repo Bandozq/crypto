@@ -1,5 +1,5 @@
-import { webScraper } from "./scraper";
-import { storage } from "./storage";
+import { webScraper } from "./scraper.js";
+import { storage } from "./storage.js";
 
 async function main() {
   console.log("Starting scraper...");

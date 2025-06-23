@@ -3,7 +3,6 @@ import { registerRoutes } from "./routes";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { fork } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,14 +42,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // run the scraper in a separate process
-  const scraper = fork(path.resolve(__dirname, "../dist/server/run-scraper.js"));
-  scraper.on("exit", (code) => {
-    if (code !== 0) {
-      console.error("Scraper exited with non-zero exit code");
-    }
-  });
-
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -78,7 +69,7 @@ app.use((req, res, next) => {
 
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve(__dirname, "public");
+    const distPath = path.resolve(__dirname, "../public");
     if (!fs.existsSync(distPath)) {
       throw new Error(
         `Could not find the build directory: ${distPath}, make sure to build the client first`

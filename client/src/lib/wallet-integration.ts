@@ -99,6 +99,17 @@ export class WalletIntegration {
     }
   }
 
+  async sendTransaction(to: string, value: string): Promise<any> {
+    if (!this.signer) {
+      throw new Error("Wallet not connected");
+    }
+    const tx = await this.signer.sendTransaction({
+      to,
+      value: ethers.parseEther(value),
+    });
+    return tx;
+  }
+  
   // Get token balances for connected wallet
   async getTokenBalances(address: string): Promise<Array<{ symbol: string; balance: string; value: number }>> {
     try {
@@ -156,7 +167,7 @@ export class WalletIntegration {
         try {
           const block = await ethersProvider.getBlock(i, true);
           if (block && block.transactions) {
-            for (const tx of block.transactions) {
+            for (const tx of block.transactions as any[]) {
               if (typeof tx === 'object' && (tx.from === address || tx.to === address)) {
                 transactions.push({
                   hash: tx.hash,
