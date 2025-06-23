@@ -23,7 +23,7 @@ FROM node:18-alpine AS production
 WORKDIR /app
 
 # Install curl and chromium for health checks and puppeteer
-RUN apk add --no-cache curl chromium psmisc
+RUN apk add --no-cache curl chromium
 
 # Set environment variables for puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
@@ -50,11 +50,11 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 # Expose port
-EXPOSE 5002
+EXPOSE 5003
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:5002/api/health || exit 1
+    CMD curl -f http://localhost:5003/api/health || exit 1
 
 # Start application
-CMD fuser -k 5002/tcp && npm start
+CMD ["npm", "start"]
