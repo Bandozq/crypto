@@ -13,7 +13,8 @@ class WebSocketClient {
   connect() {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      const basePath = window.location.pathname.replace(/\/+$/, '');
+      const wsUrl = `${protocol}//${window.location.host}${basePath}/ws`;
       
       this.ws = new WebSocket(wsUrl);
 
