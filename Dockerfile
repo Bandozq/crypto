@@ -60,4 +60,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
 # Start application - initialize DB, run scraper, then start the app
-CMD ["/bin/sh", "-c", "if [ -f ./init-db.sh ]; then ./init-db.sh; else echo 'init-db.sh not found, skipping'; fi && node dist/server/run-scraper.js && npm start"]
+CMD ["/bin/sh", "-c", "echo '🔄 Initializing database schema...' && for i in {1..30}; do if npm run db:push; then echo '✅ Database schema initialized successfully!'; break; elif [ $i -eq 30 ]; then echo '❌ Failed to initialize database after multiple attempts'; else echo \"⏳ Database not ready yet, waiting 2 seconds... (attempt $i/30)\"; sleep 2; fi; done && node dist/server/run-scraper.js && npm start"]
