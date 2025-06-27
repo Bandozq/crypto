@@ -40,7 +40,8 @@ RUN npm install --only=production && npm cache clean --force
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/shared ./shared
-COPY init-db.sh ./init-db.sh
+# Copy initialization script and make it executable
+COPY init-db.sh ./
 RUN chmod +x ./init-db.sh
 
 # Create non-root user for security
@@ -59,4 +60,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
 # Start application - initialize DB, run scraper, then start the app
-CMD ["sh", "-c", "./init-db.sh && node dist/server/run-scraper.js && npm start"]
+CMD ["/bin/sh", "-c", "if [ -f ./init-db.sh ]; then ./init-db.sh; else echo 'init-db.sh not found, skipping'; fi && node dist/server/run-scraper.js && npm start"]
