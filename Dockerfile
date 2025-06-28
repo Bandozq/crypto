@@ -40,15 +40,16 @@ RUN npm install --only=production && npm cache clean --force
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/shared ./shared
-# Copy initialization script and make it executable
-COPY init-db.sh ./
-RUN chmod +x ./init-db.sh
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
-# Change ownership of app directory
+# Copy initialization script and make it executable
+COPY init-db.sh ./
+RUN chmod +x ./init-db.sh
+
+# Change ownership of app directory (including the init script)
 RUN chown -R nodejs:nodejs /app
 USER nodejs
 
@@ -59,5 +60,25 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD (curl -f http://localhost:5000/api/health || wget -q -O - http://localhost:5000/api/health || exit 1)
 
-# Start application - run initialization script then start the app
-CMD ["/bin/sh", "-c", "./init-db.sh && echo '🚀 Starting main application...' && npm start"]
+# Start application - run initialization then start the app
+CMD ["/bin/sh", "-c", "\
+echo '🚀 Starting crypto dashboard initialization...' && \
+echo '⏳ Waiting for database to be ready...' && \
+sleep 5 && \
+echo '🔄 Running database migrations...' && \
+for i in $(seq 1 30); do \
+  if npm run db:push 2>/dev/null; then \
+    echo '✅ Database migrations completed successfully!'; \
+    break; \
+  elif [ $i -eq 30 ]; then \
+    echo '⚠️ Database migrations failed after 30 attempts. Continuing anyway...'; \
+    break; \
+  else \
+    echo \"⏳ Migration attempt $i failed, retrying in 3 seconds...\"; \
+    sleep 3; \
+  fi; \
+done && \
+echo '🔄 Running data scraper...' && \
+(node dist/server/run-scraper.js || echo '⚠️ Scraper failed, continuing...') && \
+echo '🚀 Starting main application...' && \
+npm start"]
