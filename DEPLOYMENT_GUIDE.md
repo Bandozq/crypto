@@ -14,9 +14,10 @@ This guide addresses the common issue where the crypto dashboard application sta
 
 ### 1. Robust Database Initialization
 
-- **New `init-db.sh` script**: Handles database connection waiting, migrations, and data seeding
+- **Embedded initialization logic**: Database initialization is now embedded directly in the Dockerfile CMD to avoid file path issues
 - **Improved startup process**: Separates initialization from application startup
 - **Retry logic**: Multiple attempts for database operations with exponential backoff
+- **Comprehensive logging**: Better visibility into the initialization process
 
 ### 2. Environment Variable Fixes
 
