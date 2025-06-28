@@ -15,7 +15,142 @@ import { twitterTracker } from "./twitter-tracker.js";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
-    res.status(200).json({ status: "ok" });
+    // Check database connection
+    try {
+      // Just return OK for now - we'll assume if the server is running, it's healthy
+      // In a more comprehensive implementation, we would check the database connection here
+      res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+    } catch (error) {
+      console.error("Health check failed:", error);
+      res.status(500).json({ status: "error", message: "Health check failed" });
+    }
+  });
+
+  // Simple status endpoint that doesn't require database access
+  app.get("/api/status", (_req, res) => {
+    res.status(200).json({
+      status: "online",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      version: process.env.npm_package_version || "1.0.0"
+    });
+  });
+
+  // Seed data endpoint for emergency data population
+  app.post("/api/seed-data", async (_req, res) => {
+    try {
+      const existingOpportunities = await storage.getAllOpportunities();
+      
+      if (existingOpportunities.length > 0) {
+        return res.json({ 
+          message: "Data already exists", 
+          count: existingOpportunities.length 
+        });
+      }
+
+      // Create sample data if none exists
+      const sampleOpportunities = [
+        {
+          name: 'Axie Infinity',
+          description: 'A Pokémon-inspired digital pet universe built on the Ethereum blockchain.',
+          category: 'P2E Games',
+          sourceUrl: 'https://axieinfinity.com',
+          websiteUrl: 'https://axieinfinity.com',
+          imageUrl: null,
+          discordUrl: null,
+          twitterUrl: null,
+          estimatedValue: 2500,
+          timeRemaining: '15d 8h',
+          deadline: null,
+          participants: 45000,
+          hotnessScore: 210,
+          twitterFollowers: 1200000,
+          discordMembers: 350000,
+          tradingVolume: 3000000,
+          marketCap: 50000000,
+          isActive: true
+        },
+        {
+          name: 'LayerZero Protocol',
+          description: 'Omnichain interoperability protocol enabling seamless cross-chain applications.',
+          category: 'Airdrops',
+          sourceUrl: 'https://layerzero.network',
+          websiteUrl: 'https://layerzero.network',
+          imageUrl: null,
+          discordUrl: null,
+          twitterUrl: null,
+          estimatedValue: 4500,
+          timeRemaining: '7d 2h',
+          deadline: null,
+          participants: 125000,
+          hotnessScore: 240,
+          twitterFollowers: 950000,
+          discordMembers: 45000,
+          tradingVolume: 2500000,
+          marketCap: 40000000,
+          isActive: true
+        },
+        {
+          name: 'The Sandbox',
+          description: 'A virtual world where players can build, own, and monetize their gaming experiences.',
+          category: 'P2E Games',
+          sourceUrl: 'https://www.sandbox.game',
+          websiteUrl: 'https://www.sandbox.game',
+          imageUrl: null,
+          discordUrl: null,
+          twitterUrl: null,
+          estimatedValue: 1800,
+          timeRemaining: '22d 14h',
+          deadline: null,
+          participants: 32000,
+          hotnessScore: 190,
+          twitterFollowers: 800000,
+          discordMembers: 120000,
+          tradingVolume: 2000000,
+          marketCap: 35000000,
+          isActive: true
+        },
+        {
+          name: 'zkSync Era',
+          description: 'Layer 2 scaling solution for Ethereum with zero-knowledge proofs.',
+          category: 'Airdrops',
+          sourceUrl: 'https://zksync.io',
+          websiteUrl: 'https://zksync.io',
+          imageUrl: null,
+          discordUrl: null,
+          twitterUrl: null,
+          estimatedValue: 3800,
+          timeRemaining: '12d 18h',
+          deadline: null,
+          participants: 89000,
+          hotnessScore: 220,
+          twitterFollowers: 720000,
+          discordMembers: 35000,
+          tradingVolume: 1800000,
+          marketCap: 30000000,
+          isActive: true
+        }
+      ];
+
+      let createdCount = 0;
+      for (const opportunity of sampleOpportunities) {
+        try {
+          await storage.createOpportunity(opportunity);
+          createdCount++;
+        } catch (error) {
+          console.error('Error creating sample opportunity:', error);
+        }
+      }
+
+      res.json({ 
+        message: "Sample data seeded successfully", 
+        count: createdCount 
+      });
+    } catch (error) {
+      console.error('Error seeding data:', error);
+      res.status(500).json({ message: "Failed to seed data" });
+    }
   });
 
   // Get all opportunities

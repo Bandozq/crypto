@@ -23,7 +23,7 @@ FROM node:18-alpine AS production
 WORKDIR /app
 
 # Install curl and chromium for health checks and puppeteer
-RUN apk add --no-cache curl chromium psmisc
+RUN apk add --no-cache curl wget chromium psmisc
 
 # Set environment variables for puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
@@ -55,9 +55,9 @@ USER nodejs
 # Expose port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:5000/api/health || exit 1
+# Health check - use both curl and wget for redundancy
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD (curl -f http://localhost:5000/api/health || wget -q -O - http://localhost:5000/api/health || exit 1)
 
-# Start application - initialize DB, run scraper, then start the app
-CMD ["/bin/sh", "-c", "echo '🔄 Initializing database schema...' && for i in {1..30}; do if npm run db:push; then echo '✅ Database schema initialized successfully!'; break; elif [ $i -eq 30 ]; then echo '❌ Failed to initialize database after multiple attempts'; else echo \"⏳ Database not ready yet, waiting 2 seconds... (attempt $i/30)\"; sleep 2; fi; done && node dist/server/run-scraper.js && npm start"]
+# Start application - run initialization script then start the app
+CMD ["/bin/sh", "-c", "./init-db.sh && echo '🚀 Starting main application...' && npm start"]
