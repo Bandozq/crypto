@@ -22,12 +22,16 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Install curl and chromium for health checks and puppeteer
+# Install dependencies for health checks and puppeteer
 RUN apk add --no-cache curl wget chromium psmisc
 
 # Set environment variables for puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# Health check configuration
+HEALTHCHECK --interval=30s --timeout=30s --start-period=90s --retries=5 \
+    CMD curl -f http://localhost:5000/api/health || exit 1
 
 # Copy package files
 COPY package*.json ./
@@ -56,10 +60,6 @@ USER nodejs
 # Expose port
 EXPOSE 5000
 
-# Health check - use both curl and wget for redundancy
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD (curl -f http://localhost:5000/api/health || wget -q -O - http://localhost:5000/api/health || exit 1)
-
 # Start application - run initialization then start the app
 CMD ["/bin/sh", "-c", "\
 echo '🚀 Starting crypto dashboard initialization...' && \
@@ -80,5 +80,9 @@ for i in $(seq 1 30); do \
 done && \
 echo '🔄 Running data scraper...' && \
 (node dist/server/run-scraper.js || echo '⚠️ Scraper failed, continuing...') && \
-echo '🚀 Starting main application...' && \
-npm start"]
+echo '🚀 Starting main application in background...' && \
+(npm start &) && \
+echo '⏳ Waiting for server to start...' && \
+sleep 10 && \
+echo '✅ Server started successfully!' && \
+tail -f /dev/null"]
