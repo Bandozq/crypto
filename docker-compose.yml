@@ -2,29 +2,27 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-defaultpass}@postgres:5432/crypto_dashboard
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD:-defaultpass}@postgres:5432/crypto_dashboard}
       - COINGECKO_API_KEY=${COINGECKO_API_KEY:-}
       - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY:-}
-      - TWITTER_API_KEY=${TWITTER_API_KEY:-}
-      - TWITTER_API_SECRET=${TWITTER_API_SECRET:-}
-      - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN:-}
-      - TWITTER_ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN:-}
-      - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET:-}
+      - SESSION_SECRET=${SESSION_SECRET:-crypto-dashboard-secret-key}
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/stats"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+      start_period: 60s
 
   postgres:
     image: postgres:15-alpine
@@ -34,20 +32,16 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-defaultpass}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     ports:
       - "5432:5432"
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d crypto_dashboard"]
-      interval: 30s
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
 volumes:
   postgres_data:
     driver: local
-
-networks:
-  default:
-    name: crypto-dashboard-network
