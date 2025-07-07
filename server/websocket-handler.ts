@@ -1,5 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
+import type { WebSocketMessage } from '@shared/types';
+import { logger } from './logger';
 
 // WebSocket clients and price alerts storage
 export const wsClients = new Set<WebSocket>();
@@ -26,7 +28,7 @@ export const dataSourceStatus: Record<string, { active: boolean; lastUpdate: str
 };
 
 // Helper function to broadcast to all WebSocket clients
-export function broadcastToClients(message: any) {
+export function broadcastToClients(message: WebSocketMessage) {
   const messageStr = JSON.stringify(message);
   wsClients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
@@ -40,7 +42,7 @@ export function setupWebSocketServer(httpServer: Server) {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   wss.on('connection', (ws) => {
-    console.log('New WebSocket client connected');
+    logger.websocket('New client connected');
     wsClients.add(ws);
     
     // Send initial data source status
@@ -50,17 +52,17 @@ export function setupWebSocketServer(httpServer: Server) {
     }));
     
     ws.on('close', () => {
-      console.log('WebSocket client disconnected');
+      logger.websocket('Client disconnected');
       wsClients.delete(ws);
     });
     
     ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
+      logger.error('WebSocket error', 'WS', error);
       wsClients.delete(ws);
     });
   });
 
-  console.log('WebSocket server enabled for real-time updates');
+  logger.info('WebSocket server enabled for real-time updates', 'WS');
   return wss;
 }
 

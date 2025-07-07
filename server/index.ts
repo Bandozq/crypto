@@ -5,6 +5,8 @@ import { registerRoutes } from "./routes";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { logger } from "./logger";
+import type { AppError } from "@shared/types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse: Record<string, unknown> | undefined = undefined;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -28,16 +30,10 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      logger.apiResponse(req.method, path, res.statusCode, duration);
+      if (capturedJsonResponse && logger['isDevelopment']) {
+        logger.debug("Response data", "API", capturedJsonResponse);
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      console.log(logLine);
     }
   });
 
@@ -45,17 +41,19 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  console.log(`🚀 Starting crypto dashboard server...`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Database URL configured: ${!!process.env.DATABASE_URL}`);
+  logger.info("Starting crypto dashboard server", "STARTUP");
+  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`, "STARTUP");
+  logger.info(`Database URL configured: ${!!process.env.DATABASE_URL}`, "STARTUP");
   
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: AppError, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    console.error(`Server error ${status}:`, err);
+    logger.error(`Server error ${status}: ${message}`, "ERROR", { 
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
+    });
     res.status(status).json({ 
       message,
       error: process.env.NODE_ENV === 'development' ? err.stack : undefined
@@ -84,11 +82,11 @@ app.use((req, res, next) => {
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(__dirname, "../../dist/public");
-    console.log(`📁 Looking for static files in: ${distPath}`);
+    logger.debug(`Looking for static files in: ${distPath}`, "STATIC");
     
     if (!fs.existsSync(distPath)) {
-      console.error(`❌ Build directory not found: ${distPath}`);
-      console.log(`📝 Make sure to run 'npm run build' first`);
+      logger.error(`Build directory not found: ${distPath}`, "STATIC");
+      logger.warn("Make sure to run 'npm run build' first", "STATIC");
       
       // Create a fallback response for missing build
       app.use("*", (_req, res) => {
@@ -99,7 +97,7 @@ app.use((req, res, next) => {
         });
       });
     } else {
-      console.log(`✅ Static files found, serving from: ${distPath}`);
+      logger.info(`Static files found, serving from: ${distPath}`, "STATIC");
       
       // Serve static files with proper headers
       app.use(express.static(distPath, {
@@ -131,18 +129,18 @@ app.use((req, res, next) => {
       reusePort: true,
     },
     () => {
-      console.log(`✅ Server running successfully on port ${port}`);
-      console.log(`🌐 Health check available at: http://localhost:${port}/api/health`);
-      console.log(`📊 API base URL: http://localhost:${port}/api`);
+      logger.info(`Server running successfully on port ${port}`, "STARTUP");
+      logger.info(`Health check available at: http://localhost:${port}/api/health`, "STARTUP");
+      logger.info(`API base URL: http://localhost:${port}/api`, "STARTUP");
       
       // Test database connection on startup
       setTimeout(async () => {
         try {
           const response = await fetch(`http://localhost:${port}/api/health`);
           const healthData = await response.json();
-          console.log(`🔍 Startup health check:`, healthData.status === 'ok' ? '✅ HEALTHY' : '❌ UNHEALTHY');
+          logger.info(`Startup health check: ${healthData.status === 'ok' ? 'HEALTHY' : 'UNHEALTHY'}`, "HEALTH");
         } catch (error) {
-          console.error(`🔍 Startup health check failed:`, error);
+          logger.error('Startup health check failed', "HEALTH", error);
         }
       }, 2000);
     }

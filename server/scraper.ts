@@ -1,7 +1,9 @@
 import { storage } from './storage';
 import type { InsertOpportunity } from '@shared/schema';
+import type { CoinGeckoTrendingResponse, CoinMarketCapResponse, ScrapedGameData } from '@shared/types';
 import puppeteer from 'puppeteer';
 import { updateDataSourceStatus } from './websocket-handler';
+import { logger } from './logger';
 
 // API endpoints for fetching real crypto data
 const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY;
@@ -60,11 +62,11 @@ async function fetchTrendingCoins(): Promise<InsertOpportunity[]> {
         if (response.ok) break;
         
         retries++;
-        console.log(`CoinGecko API retry ${retries}/${maxRetries} - Status: ${response.status}`);
+        logger.warn(`CoinGecko API retry ${retries}/${maxRetries} - Status: ${response.status}`, 'COINGECKO');
         await new Promise(resolve => setTimeout(resolve, 1000 * retries)); // Exponential backoff
       } catch (fetchError) {
         retries++;
-        console.error(`CoinGecko API fetch error (attempt ${retries}/${maxRetries}):`, fetchError);
+        logger.error(`CoinGecko API fetch error (attempt ${retries}/${maxRetries})`, 'COINGECKO', fetchError);
         if (retries >= maxRetries) throw fetchError;
         await new Promise(resolve => setTimeout(resolve, 1000 * retries));
       }
@@ -79,7 +81,7 @@ async function fetchTrendingCoins(): Promise<InsertOpportunity[]> {
       throw new Error(errorMessage);
     }
     
-    const data = await response.json();
+    const data: CoinGeckoTrendingResponse = await response.json();
     
     // Update status on successful API call
     updateDataSourceStatus('coingecko', { 
@@ -87,7 +89,7 @@ async function fetchTrendingCoins(): Promise<InsertOpportunity[]> {
       error: null 
     });
     
-    return data.coins.slice(0, 8).map((coin: any) => ({
+    return data.coins.slice(0, 8).map((coin) => ({
       name: coin.item.name,
       description: `Trending cryptocurrency with market cap rank #${coin.item.market_cap_rank || 'N/A'}. ${coin.item.name} is gaining significant attention in the crypto community.`,
       category: 'New Listings',
@@ -108,7 +110,7 @@ async function fetchTrendingCoins(): Promise<InsertOpportunity[]> {
       hotnessScore: 0, // Will be calculated
     }));
   } catch (error) {
-    console.error('Error fetching trending coins:', error);
+    logger.scraperError('coingecko', error as Error);
     updateDataSourceStatus('coingecko', { 
       active: false, 
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -121,7 +123,7 @@ async function fetchTrendingCoins(): Promise<InsertOpportunity[]> {
 
 // Generate fallback trending coins when API fails
 function generateFallbackTrendingCoins(): InsertOpportunity[] {
-  console.log('Generating fallback trending coins data');
+  logger.info('Generating fallback trending coins data', 'COINGECKO');
   const fallbackCoins = [
     { name: 'Bitcoin', id: 'bitcoin' },
     { name: 'Ethereum', id: 'ethereum' },
@@ -155,7 +157,7 @@ function generateFallbackTrendingCoins(): InsertOpportunity[] {
 // Fetch new listings from CoinMarketCap API
 async function fetchNewListings(): Promise<InsertOpportunity[]> {
   if (!COINMARKETCAP_API_KEY) {
-    console.log('CoinMarketCap API key not configured');
+    logger.info('CoinMarketCap API key not configured', 'CMC');
     return [];
   }
 
@@ -169,21 +171,21 @@ async function fetchNewListings(): Promise<InsertOpportunity[]> {
     
     if (!response.ok) {
       if (response.status === 403) {
-        console.error('CoinMarketCap API key invalid or insufficient permissions');
+        logger.error('CoinMarketCap API key invalid or insufficient permissions', 'CMC');
       } else if (response.status === 429) {
-        console.error('CoinMarketCap API rate limit exceeded');
+        logger.error('CoinMarketCap API rate limit exceeded', 'CMC');
       }
       throw new Error(`CoinMarketCap API error: ${response.status}`);
     }
     
-    const data = await response.json();
+    const data: CoinMarketCapResponse = await response.json();
     
     if (!data.data || !Array.isArray(data.data)) {
-      console.error('Unexpected CoinMarketCap API response format');
+      logger.error('Unexpected CoinMarketCap API response format', 'CMC');
       return [];
     }
     
-    const opportunities = data.data.slice(0, 10).map((coin: any) => ({
+    const opportunities = data.data.slice(0, 10).map((coin) => ({
       name: coin.name,
       description: `Recently listed cryptocurrency (${coin.symbol}). Market Cap: $${coin.quote?.USD?.market_cap?.toLocaleString() || 'N/A'}. ${coin.name} is a new addition to the cryptocurrency market.`,
       category: 'New Listings',
@@ -212,7 +214,7 @@ async function fetchNewListings(): Promise<InsertOpportunity[]> {
 
     return opportunities;
   } catch (error) {
-    console.error('Error fetching new listings:', error);
+    logger.scraperError('coinmarketcap', error as Error);
     updateDataSourceStatus('coinmarketcap', { 
       active: false, 
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -221,7 +223,7 @@ async function fetchNewListings(): Promise<InsertOpportunity[]> {
   }
 }
 
-// Generate some sample new listings
+// Generate some sample new listings when API fails
 function generateNewListings(): InsertOpportunity[] {
   const mockTokens = [
     'DogeCoin2.0', 'SafeMoonX', 'ElonSpaceCoin', 'MemeLord', 'RocketFuel',
